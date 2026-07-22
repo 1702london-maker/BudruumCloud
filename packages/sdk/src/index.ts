@@ -94,6 +94,10 @@ class QueryBuilder<T = Record<string, unknown>> {
 
 export function createClient(baseUrl: string, anonKey: string, options: { projectId: string }) {
   const normalizedBaseUrl = baseUrl.replace(/\/$/, "");
+  const authHeaders = {
+    Authorization: `Bearer ${anonKey}`,
+    "Content-Type": "application/json",
+  };
 
   return {
     from<T = Record<string, unknown>>(table: string) {
@@ -102,6 +106,24 @@ export function createClient(baseUrl: string, anonKey: string, options: { projec
     db: {
       from<T = Record<string, unknown>>(table: string) {
         return new QueryBuilder<T>(normalizedBaseUrl, anonKey, options.projectId, table);
+      },
+    },
+    auth: {
+      async signUp(input: { email: string; password: string; name?: string }) {
+        const response = await fetch(`${normalizedBaseUrl}/api/v1/projects/${options.projectId}/auth/signup`, {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify(input),
+        });
+        return response.json();
+      },
+      async signInWithPassword(input: { email: string; password: string }) {
+        const response = await fetch(`${normalizedBaseUrl}/api/v1/projects/${options.projectId}/auth/login`, {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify(input),
+        });
+        return response.json();
       },
     },
   };

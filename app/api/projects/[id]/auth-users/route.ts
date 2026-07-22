@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { project, user } from "@/lib/schema";
+import { project } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
 import { headers } from "next/headers";
+import { ensureProjectDatabase, getProjectSql, qualifyTable } from "@/lib/project-db";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,13 +15,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     .where(and(eq(project.id, id), eq(project.ownerId, session.user.id)));
   if (!proj) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const users = await db.select({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    emailVerified: user.emailVerified,
-    createdAt: user.createdAt,
-  }).from(user);
+  await ensureProjectDatabase(id, proj.dbUrl);
+  const sql = getProjectSql(proj.dbUrl);
+  const users = await sql.query(
+    `SELECT "id", "name", "email", "email_verified" AS "emailVerified", "created_at" AS "createdAt" FROM ${qualifyTable(id, "auth_users")} ORDER BY "created_at" DESC LIMIT 500`
+  );
 
   return NextResponse.json({ users });
 }

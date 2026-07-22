@@ -29,6 +29,26 @@ export async function ensureProjectDatabase(projectId: string, dbUrl?: string | 
       "created_at" timestamp NOT NULL DEFAULT now()
     )
   `);
+  await sql.query(`
+    CREATE TABLE IF NOT EXISTS ${quoteIdent(schema)}."auth_users" (
+      "id" text PRIMARY KEY,
+      "email" text NOT NULL UNIQUE,
+      "name" text,
+      "password_hash" text NOT NULL,
+      "email_verified" boolean NOT NULL DEFAULT false,
+      "created_at" timestamp NOT NULL DEFAULT now(),
+      "updated_at" timestamp NOT NULL DEFAULT now()
+    )
+  `);
+  await sql.query(`
+    CREATE TABLE IF NOT EXISTS ${quoteIdent(schema)}."auth_sessions" (
+      "id" text PRIMARY KEY,
+      "user_id" text NOT NULL REFERENCES ${quoteIdent(schema)}."auth_users"("id") ON DELETE cascade,
+      "token" text NOT NULL UNIQUE,
+      "expires_at" timestamp NOT NULL,
+      "created_at" timestamp NOT NULL DEFAULT now()
+    )
+  `);
 }
 
 export async function listProjectTables(projectId: string, dbUrl?: string | null) {
