@@ -25,6 +25,21 @@ class QueryBuilder<T = Record<string, unknown>> {
     return this;
   }
 
+  async insert(values: Partial<T> | Partial<T>[]): Promise<{ data: T[] | null; error: string | null }> {
+    const response = await fetch(
+      `${this.baseUrl}/api/v1/projects/${this.projectId}/rest/${this.table}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.key}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      }
+    );
+    return response.json();
+  }
+
   async execute(): Promise<{ data: T[] | null; error: string | null }> {
     const query = new URLSearchParams(this.params);
     const response = await fetch(
