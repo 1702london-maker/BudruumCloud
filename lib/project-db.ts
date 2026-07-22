@@ -47,3 +47,25 @@ export async function listProjectTables(projectId: string, dbUrl?: string | null
   );
   return rows as { table_name: string }[];
 }
+
+export async function listProjectColumns(projectId: string, table: string, dbUrl?: string | null) {
+  await ensureProjectDatabase(projectId, dbUrl);
+  const sql = getProjectSql(dbUrl);
+  const schema = getProjectSchemaName(projectId);
+
+  const rows = await sql.query(
+    `
+      SELECT column_name, data_type, is_nullable, column_default
+      FROM information_schema.columns
+      WHERE table_schema = $1 AND table_name = $2
+      ORDER BY ordinal_position
+    `,
+    [schema, table]
+  );
+  return rows as {
+    column_name: string;
+    data_type: string;
+    is_nullable: "YES" | "NO";
+    column_default: string | null;
+  }[];
+}

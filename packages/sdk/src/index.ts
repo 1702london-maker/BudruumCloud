@@ -25,6 +25,16 @@ class QueryBuilder<T = Record<string, unknown>> {
     return this;
   }
 
+  offset(count: number) {
+    this.params.offset = String(count);
+    return this;
+  }
+
+  order(column: string, options: { ascending?: boolean } = {}) {
+    this.params.order = `${column}.${options.ascending === false ? "desc" : "asc"}`;
+    return this;
+  }
+
   async insert(values: Partial<T> | Partial<T>[]): Promise<{ data: T[] | null; error: string | null }> {
     const response = await fetch(
       `${this.baseUrl}/api/v1/projects/${this.projectId}/rest/${this.table}`,
@@ -36,6 +46,31 @@ class QueryBuilder<T = Record<string, unknown>> {
         },
         body: JSON.stringify(values),
       }
+    );
+    return response.json();
+  }
+
+  async update(values: Partial<T>): Promise<{ data: T[] | null; error: string | null }> {
+    const query = new URLSearchParams(this.params);
+    const response = await fetch(
+      `${this.baseUrl}/api/v1/projects/${this.projectId}/rest/${this.table}?${query.toString()}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${this.key}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      }
+    );
+    return response.json();
+  }
+
+  async delete(): Promise<{ data: T[] | null; error: string | null }> {
+    const query = new URLSearchParams(this.params);
+    const response = await fetch(
+      `${this.baseUrl}/api/v1/projects/${this.projectId}/rest/${this.table}?${query.toString()}`,
+      { method: "DELETE", headers: { Authorization: `Bearer ${this.key}` } }
     );
     return response.json();
   }
