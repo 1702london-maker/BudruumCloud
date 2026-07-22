@@ -23,7 +23,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   try {
     const neonSql = neon(proj.dbUrl || process.env.DATABASE_URL!);
-    const rows = await neonSql(sql);
+    const rows = await neonSql.query(sql);
     return NextResponse.json({ rows });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Query failed";

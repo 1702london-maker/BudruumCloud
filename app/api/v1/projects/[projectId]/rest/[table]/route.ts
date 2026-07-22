@@ -38,13 +38,12 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
   }
 
   const sql = neon(auth.project.dbUrl || process.env.DATABASE_URL!);
-  const runQuery = sql as unknown as (query: string, params: string[]) => Promise<unknown>;
   const columns = select === "*" ? "*" : select.split(",").map((column) => `"${column.trim()}"`).join(", ");
   const where = whereClauses.length ? ` WHERE ${whereClauses.join(" AND ")}` : "";
   const query = `SELECT ${columns} FROM "${table}"${where} LIMIT ${limit}`;
 
   try {
-    const data = await runQuery(query, values);
+    const data = await sql.query(query, values);
     return NextResponse.json({ data, error: null });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Query failed";

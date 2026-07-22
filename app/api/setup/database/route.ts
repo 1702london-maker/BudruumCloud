@@ -13,14 +13,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "DATABASE_URL is not configured." }, { status: 500 });
   }
 
-  const sql = neon(databaseUrl) as unknown as (query: string) => Promise<unknown>;
+  const sql = neon(databaseUrl);
   const applied: string[] = [];
 
   for (const statement of initialSchemaSql) {
     const match = statement.match(/CREATE TABLE IF NOT EXISTS "([^"]+)"/);
     const tableName = match?.[1] || "statement";
     try {
-      await sql(statement);
+      await sql.query(statement);
       applied.push(tableName);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Migration failed";
