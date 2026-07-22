@@ -3,21 +3,22 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Activity, Bot, Database, FileText, Home, KeyRound, Link2, Menu, Search, Settings, Shield, Table2, TerminalSquare, UploadCloud, Users, Zap } from "lucide-react";
+import { Activity, BarChart3, Bot, Database, FileText, Home, KeyRound, Menu, Search, Settings, Shield, Table2, TerminalSquare, UploadCloud, Users, Zap } from "lucide-react";
 import { signOut, useSession } from "@/lib/auth-client";
 
 const NAV = [
   { label: "Project Overview", path: "", icon: Home },
-  { label: "Table Editor", path: "/database", icon: Table2 },
-  { label: "SQL Editor", path: "/editor", icon: TerminalSquare },
-  { label: "Database", path: "/sql", icon: Database },
+  { label: "Table Editor", path: "/table-editor", icon: Table2 },
+  { label: "SQL Editor", path: "/sql", icon: TerminalSquare },
+  { label: "Database", path: "/database", icon: Database },
   { label: "Authentication", path: "/auth", icon: Users },
   { label: "Storage", path: "/storage", icon: UploadCloud },
   { label: "Edge Functions", path: "/functions", icon: Zap },
   { label: "Realtime", path: "/realtime", icon: Activity },
+  { label: "Advisors", path: "/advisors", icon: Bot },
+  { label: "Observability", path: "/observability", icon: BarChart3 },
   { label: "API Keys", path: "/api-keys", icon: KeyRound },
   { label: "Logs", path: "/logs", icon: FileText },
-  { label: "Integrations", path: "/integrations", icon: Link2 },
   { label: "Project Settings", path: "/settings", icon: Settings },
 ];
 

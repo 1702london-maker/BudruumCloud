@@ -1,84 +1,89 @@
-﻿"use client";
-import { use, useEffect, useState } from "react";
+"use client";
+import Link from "next/link";
+import { use } from "react";
+import { Copy, Database, GitBranch, KeyRound, Lock, Network, RotateCcw, Table2 } from "lucide-react";
 
-type TableRow = Record<string, string | number | boolean | null>;
-const TABLES = ["user", "session", "account", "verification", "project", "api_key"];
+const TABLES = [
+  { name: "user", columns: ["id", "name", "email", "emailVerified", "createdAt"] },
+  { name: "session", columns: ["id", "userId", "token", "expiresAt", "createdAt"] },
+  { name: "account", columns: ["id", "userId", "providerId", "accountId"] },
+  { name: "verification", columns: ["id", "identifier", "value", "expiresAt"] },
+  { name: "project", columns: ["id", "ownerId", "name", "slug", "region", "plan"] },
+  { name: "api_key", columns: ["id", "projectId", "name", "type", "createdAt"] },
+];
 
 export default function DatabasePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const [activeTable, setActiveTable] = useState("user");
-  const [rows, setRows] = useState<TableRow[]>([]);
-  const [columns, setColumns] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setLoading(true);
-    fetch('/api/projects/' + id + '/query', {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sql: 'SELECT * FROM "' + activeTable + '" LIMIT 50' }),
-    })
-      .then(r => r.json())
-      .then(d => {
-        if (d.rows?.length) { setColumns(Object.keys(d.rows[0])); setRows(d.rows); }
-        else { setColumns([]); setRows([]); }
-      })
-      .catch(() => { setColumns([]); setRows([]); })
-      .finally(() => setLoading(false));
-  }, [activeTable, id]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-[18px] font-extrabold tracking-[-0.02em] text-[#0d0d1a]">Table Editor</h1>
-        <span className="text-[11.5px] text-[#9494a8]">Budruum Database - Primary region</span>
-      </div>
-      <div className="flex gap-4" style={{ height: "calc(100vh - 220px)", minHeight: "400px" }}>
-        <div className="w-44 flex-shrink-0 bg-white border border-[#e8e8f0] rounded-[12px] p-2 overflow-y-auto">
-          <p className="text-[10px] font-bold text-[#9494a8] uppercase tracking-wide px-2 py-1.5">Tables</p>
-          {TABLES.map(t => (
-            <button key={t} onClick={() => setActiveTable(t)}
-              className={"w-full text-left px-2.5 py-1.5 rounded-[7px] text-[12.5px] transition-colors " + (activeTable === t ? "bg-[#EEF5FB] text-[#5890B8] font-semibold" : "text-[#6b6b80] hover:bg-[#fafafa]")}>
-              {t}
-            </button>
-          ))}
+    <div className="grid grid-cols-[224px_1fr] gap-0 -m-8 min-h-[calc(100vh-56px)]">
+      <aside className="border-r border-[#e8e8f0] bg-[#fbfbfd] p-4">
+        <h1 className="text-[18px] font-bold mb-6">Database</h1>
+        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9494a8] mb-2">Database Management</p>
+        {["Schema Visualizer", "Tables", "Functions", "Triggers", "Indexes"].map((item, index) => (
+          <button key={item} className={`w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] ${index === 0 ? "bg-white font-bold text-[#0d0d1a]" : "text-[#6b6b80] hover:bg-white"}`}>{item}</button>
+        ))}
+        <div className="h-px bg-[#e8e8f0] my-4" />
+        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9494a8] mb-2">Access Control</p>
+        {["Policies", "Roles"].map((item) => (
+          <button key={item} className="w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] text-[#6b6b80] hover:bg-white">{item}</button>
+        ))}
+        <div className="h-px bg-[#e8e8f0] my-4" />
+        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9494a8] mb-2">Platform</p>
+        {["Replication", "Backups", "Migrations"].map((item) => (
+          <button key={item} className="w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] text-[#6b6b80] hover:bg-white">{item}</button>
+        ))}
+      </aside>
+
+      <main className="min-w-0">
+        <div className="h-12 border-b border-[#e8e8f0] flex items-center gap-2 px-4">
+          <select className="h-8 rounded-[7px] border border-[#dfe1ea] px-3 text-[12px] bg-white"><option>schema public</option></select>
+          <input className="h-8 w-52 rounded-[7px] border border-[#dfe1ea] px-3 text-[12px]" placeholder="Find table..." />
+          <button className="ml-auto h-8 px-3 rounded-[7px] border border-[#dfe1ea] text-[12px] font-semibold inline-flex items-center gap-2"><Copy size={13} /> Copy as SQL</button>
+          <button className="h-8 px-3 rounded-[7px] border border-[#dfe1ea] text-[12px] font-semibold">Auto layout</button>
         </div>
-        <div className="flex-1 bg-white border border-[#e8e8f0] rounded-[12px] overflow-hidden flex flex-col">
-          <div className="px-4 py-3 border-b border-[#e8e8f0] flex items-center justify-between">
-            <span className="text-[12.5px] font-semibold text-[#0d0d1a] font-mono">{activeTable}</span>
-            <span className="text-[11.5px] text-[#9494a8]">{rows.length} rows</span>
-          </div>
-          {loading ? (
-            <div className="flex items-center justify-center flex-1">
-              <div className="w-5 h-5 border-2 border-[#8BB8D8] border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : columns.length === 0 ? (
-            <div className="flex items-center justify-center flex-1 flex-col gap-2">
-              <p className="text-[13px] font-semibold text-[#0d0d1a]">No rows yet</p>
-              <p className="text-[12px] text-[#9494a8]">This table is empty.</p>
-            </div>
-          ) : (
-            <div className="overflow-auto flex-1">
-              <table className="w-full text-[12px]">
-                <thead className="sticky top-0 bg-[#fafafa] border-b border-[#e8e8f0]">
-                  <tr>{columns.map(col => <th key={col} className="text-left px-4 py-2 font-semibold text-[#9494a8] whitespace-nowrap">{col}</th>)}</tr>
-                </thead>
-                <tbody>
-                  {rows.map((row, i) => (
-                    <tr key={i} className="border-b border-[#f0f0f8] hover:bg-[#fafafa]">
-                      {columns.map(col => (
-                        <td key={col} className="px-4 py-2 text-[#0d0d1a] font-mono whitespace-nowrap max-w-[200px] truncate">
-                          {row[col] === null ? <span className="text-[#c0c0d0]">null</span> : String(row[col])}
-                        </td>
-                      ))}
-                    </tr>
+
+        <div className="relative min-h-[calc(100vh-108px)] bg-[radial-gradient(#dfe1ea_1px,transparent_1px)] [background-size:18px_18px] overflow-hidden">
+          <div className="absolute left-10 top-10 grid grid-cols-3 gap-5">
+            {TABLES.map((table, index) => (
+              <div key={table.name} className="w-[230px] rounded-[8px] bg-white border border-[#dfe1ea] shadow-sm" style={{ transform: `translateY(${index % 2 === 0 ? 0 : 34}px)` }}>
+                <div className="h-9 border-b border-[#e8e8f0] px-3 flex items-center gap-2">
+                  <Table2 size={13} className="text-[#5890B8]" />
+                  <span className="text-[12px] font-bold font-mono">{table.name}</span>
+                </div>
+                <div className="py-1">
+                  {table.columns.map((column, i) => (
+                    <div key={column} className="h-7 px-3 flex items-center gap-2 text-[11px] border-b border-[#f8f8fc] last:border-0">
+                      {i === 0 ? <KeyRound size={11} className="text-[#d97706]" /> : <span className="w-[11px] h-[11px] rounded-full border border-[#c8c8d6]" />}
+                      <span className="font-mono text-[#0d0d1a]">{column}</span>
+                      <span className="ml-auto text-[#9494a8]">{i === 0 ? "uuid" : "text"}</span>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="absolute right-8 bottom-8 w-[300px] rounded-[8px] border border-[#e8e8f0] bg-white p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Database size={16} className="text-[#5890B8]" />
+              <h2 className="text-[13px] font-bold">Database readiness</h2>
             </div>
-          )}
+            {[
+              { icon: Network, label: "Schema visualizer", value: "Ready" },
+              { icon: Lock, label: "Access policies", value: "Planned" },
+              { icon: RotateCcw, label: "Backups", value: "Planned" },
+              { icon: GitBranch, label: "Branching", value: "Planned" },
+            ].map(({ icon: Icon, label, value }) => (
+              <div key={label} className="flex items-center justify-between py-2 border-t border-[#f0f0f6] first:border-t-0">
+                <span className="inline-flex items-center gap-2 text-[12px] text-[#6b6b80]"><Icon size={13} /> {label}</span>
+                <span className="text-[10px] font-bold uppercase text-[#5890B8]">{value}</span>
+              </div>
+            ))}
+            <Link href={`/project/${id}/table-editor`} className="mt-3 h-8 w-full rounded-[7px] border border-[#dfe1ea] text-[12px] font-semibold flex items-center justify-center">Open Table Editor</Link>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
