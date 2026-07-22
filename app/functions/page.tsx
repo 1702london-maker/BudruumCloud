@@ -1,5 +1,6 @@
 import MegaNav from "@/components/home/mega-nav";
 import { Footer } from "@/components/layout/footer";
+import Link from "next/link";
 
 export default function FunctionsPage() {
   return (
@@ -23,7 +24,7 @@ export default function FunctionsPage() {
           </p>
           <div className="flex items-center justify-center gap-3 anim-hero" style={{ animationDelay: "0.18s" }}>
             <a href="/signup" className="btn-primary bg-[#8BB8D8] text-white text-[13px] font-semibold px-5 py-2.5 rounded-[8px]">Deploy your first function</a>
-            <a href="/docs" className="text-[13px] font-semibold text-[#0d0d1a] px-5 py-2.5 rounded-[8px] border border-[#e8e8f0] hover:border-[#C5DCF0] transition-colors">View docs</a>
+            <Link href="/docs" className="text-[13px] font-semibold text-[#0d0d1a] px-5 py-2.5 rounded-[8px] border border-[#e8e8f0] hover:border-[#C5DCF0] transition-colors">View docs</Link>
           </div>
         </div>
       </section>
@@ -157,3 +158,4 @@ serve(async (req) => {
     </div>
   );
 }
+
