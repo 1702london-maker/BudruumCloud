@@ -76,23 +76,23 @@ export function AnimatedStats() {
 
           {/* Left: stats */}
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#8BB8D8] mb-3">By the numbers</p>
-            <h2 className="text-[32px] font-extrabold tracking-tight text-[#1b1b23] mb-10 leading-tight">
+            <p className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#8BB8D8] mb-3">By the numbers</p>
+            <h2 className="text-[30px] font-extrabold tracking-[-0.02em] text-[#0d0d1a] mb-8 leading-tight">
               Infrastructure that performs.<br />Numbers that prove it.
             </h2>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-4">
               {STATS.map(({ display, label }, i) => (
                 <div
                   key={label}
                   className="p-5 border border-[#e8e8f0] rounded-[12px] bg-white hover:border-[#C5DCF0] hover:shadow-md transition-all"
                   style={{
-                    opacity: visible ? 1 : 0,
-                    transform: visible ? "translateY(0)" : "translateY(20px)",
+                    opacity: 1,
+                    transform: "translateY(0)",
                     transition: `opacity 0.5s ease ${i * 0.1}s, transform 0.5s ease ${i * 0.1}s`,
                   }}
                 >
-                  <p className="text-[36px] font-extrabold tracking-tight text-[#1b1b23] leading-none mb-1.5">{display}</p>
-                  <p className="text-[12px] text-[#6b6b80] font-medium">{label}</p>
+                  <p className="text-[34px] font-extrabold tracking-tight text-[#0d0d1a] leading-none mb-1.5">{display}</p>
+                  <p className="text-[11.5px] text-[#6b6b80] font-medium">{label}</p>
                 </div>
               ))}
             </div>
@@ -101,11 +101,6 @@ export function AnimatedStats() {
           {/* Right: bar chart */}
           <div
             className="border border-[#e8e8f0] rounded-[14px] p-6 bg-white shadow-sm"
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(24px)",
-              transition: "opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s",
-            }}
           >
             <div className="flex items-center justify-between mb-1">
               <p className="text-[13px] font-bold text-[#1b1b23]">API Requests</p>
