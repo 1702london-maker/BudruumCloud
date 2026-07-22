@@ -225,3 +225,5 @@ export function MegaNav() {
     </nav>
   );
 }
+
+export default MegaNav;
