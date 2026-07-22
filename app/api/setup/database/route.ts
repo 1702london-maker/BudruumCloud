@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const applied: string[] = [];
 
   for (const statement of initialSchemaSql) {
-    const match = statement.match(/CREATE TABLE IF NOT EXISTS "([^"]+)"/);
+    const match = statement.match(/(?:CREATE TABLE IF NOT EXISTS|ALTER TABLE) "([^"]+)"/);
     const tableName = match?.[1] || "statement";
     try {
       await sql.query(statement);
