@@ -2,16 +2,19 @@ import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { db } from "@/lib/db";
 import { projectPolicy } from "@/lib/schema";
+import { ensurePlatformTables } from "@/lib/platform-tables";
 
 export type PolicyMode = "public" | "service";
 
 export async function getTablePolicy(projectId: string, tableName: string) {
+  await ensurePlatformTables();
   const [policy] = await db.select().from(projectPolicy)
     .where(and(eq(projectPolicy.projectId, projectId), eq(projectPolicy.tableName, tableName)));
   return policy || null;
 }
 
 export async function ensureTablePolicy(projectId: string, tableName: string) {
+  await ensurePlatformTables();
   const existing = await getTablePolicy(projectId, tableName);
   if (existing) return existing;
   const now = new Date();

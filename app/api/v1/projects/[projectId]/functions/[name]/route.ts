@@ -4,12 +4,14 @@ import { requireProjectApiKey } from "@/lib/api-auth";
 import { db } from "@/lib/db";
 import { projectFunction } from "@/lib/schema";
 import { recordProjectLog, requestIp } from "@/lib/logging";
+import { ensurePlatformTables } from "@/lib/platform-tables";
 
 async function invoke(req: NextRequest, projectId: string, name: string) {
   const started = Date.now();
   const auth = await requireProjectApiKey(req, projectId);
   if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
+  await ensurePlatformTables();
   const [fn] = await db.select().from(projectFunction)
     .where(and(eq(projectFunction.projectId, projectId), eq(projectFunction.name, name), eq(projectFunction.status, "active")));
   if (!fn) {

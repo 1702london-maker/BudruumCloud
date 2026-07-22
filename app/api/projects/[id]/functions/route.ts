@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { project, projectFunction } from "@/lib/schema";
+import { ensurePlatformTables } from "@/lib/platform-tables";
 
 async function requireProject(id: string) {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -19,6 +20,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params;
   const authResult = await requireProject(id);
   if ("error" in authResult) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+  await ensurePlatformTables();
   const functions = await db.select().from(projectFunction)
     .where(eq(projectFunction.projectId, id))
     .orderBy(desc(projectFunction.updatedAt));
@@ -29,6 +31,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params;
   const authResult = await requireProject(id);
   if ("error" in authResult) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+  await ensurePlatformTables();
 
   const body = await req.json().catch(() => ({}));
   const name = String(body.name || "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
