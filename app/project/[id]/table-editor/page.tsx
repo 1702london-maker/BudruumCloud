@@ -3,16 +3,31 @@ import { use, useEffect, useState } from "react";
 import { Plus, Search, Table2 } from "lucide-react";
 
 type TableRow = Record<string, string | number | boolean | null>;
-const TABLES = ["user", "session", "account", "verification", "project", "api_key"];
 
 export default function TableEditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const [activeTable, setActiveTable] = useState("user");
+  const [tables, setTables] = useState<string[]>([]);
+  const [activeTable, setActiveTable] = useState("");
   const [rows, setRows] = useState<TableRow[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    fetch("/api/projects/" + id + "/tables")
+      .then((r) => r.json())
+      .then((data) => {
+        const nextTables = data.tables || [];
+        setTables(nextTables);
+        setActiveTable((current) => current || nextTables[0] || "");
+      })
+      .catch(() => {
+        setTables([]);
+        setActiveTable("");
+      });
+  }, [id]);
+
+  useEffect(() => {
+    if (!activeTable) return;
     setLoading(true);
     fetch("/api/projects/" + id + "/query", {
       method: "POST",
@@ -43,11 +58,14 @@ export default function TableEditorPage({ params }: { params: Promise<{ id: stri
           <input className="min-w-0 flex-1 text-[12px] bg-transparent outline-none" placeholder="Search tables..." />
         </div>
         <div className="space-y-1">
-          {TABLES.map(table => (
+          {tables.map(table => (
             <button key={table} onClick={() => setActiveTable(table)} className={`w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] inline-flex items-center gap-2 ${activeTable === table ? "bg-[#EEF5FB] text-[#0d0d1a] font-bold" : "text-[#6b6b80] hover:bg-white"}`}>
               <Table2 size={14} className="text-[#9494a8]" /> {table}
             </button>
           ))}
+          {tables.length === 0 && (
+            <p className="px-2.5 py-2 text-[12px] text-[#9494a8]">No project tables found.</p>
+          )}
         </div>
       </aside>
 
@@ -66,7 +84,7 @@ export default function TableEditorPage({ params }: { params: Promise<{ id: stri
             <div className="h-full flex flex-col items-center justify-center gap-2">
               <Table2 size={24} className="text-[#8BB8D8]" />
               <p className="text-[13px] font-bold">No rows yet</p>
-              <p className="text-[12px] text-[#9494a8]">This table is empty.</p>
+              <p className="text-[12px] text-[#9494a8]">{activeTable ? "This table is empty." : "Create a table from SQL Editor to begin."}</p>
             </div>
           ) : (
             <div className="overflow-auto h-full">

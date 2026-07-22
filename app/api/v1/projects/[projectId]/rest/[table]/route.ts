@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
 import { isSafeIdentifier, requireProjectApiKey } from "@/lib/api-auth";
+import { ensureProjectDatabase, qualifyTable } from "@/lib/project-db";
 
 type Params = Promise<{ projectId: string; table: string }>;
 
@@ -37,10 +38,11 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
     whereClauses.push(`"${column}" = $${values.length}`);
   }
 
+  await ensureProjectDatabase(projectId, auth.project.dbUrl);
   const sql = neon(auth.project.dbUrl || process.env.DATABASE_URL!);
   const columns = select === "*" ? "*" : select.split(",").map((column) => `"${column.trim()}"`).join(", ");
   const where = whereClauses.length ? ` WHERE ${whereClauses.join(" AND ")}` : "";
-  const query = `SELECT ${columns} FROM "${table}"${where} LIMIT ${limit}`;
+  const query = `SELECT ${columns} FROM ${qualifyTable(projectId, table)}${where} LIMIT ${limit}`;
 
   try {
     const data = await sql.query(query, values);

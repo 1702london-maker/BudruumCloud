@@ -5,6 +5,7 @@ import { project, apiKey } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { nanoid } from "nanoid";
+import { ensureProjectDatabase } from "@/lib/project-db";
 
 export async function GET() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -31,10 +32,14 @@ export async function POST(req: NextRequest) {
     slug,
     region: region || "eu-west-2",
     ownerId: session.user.id,
+    dbUrl: process.env.DATABASE_URL,
+    storageBucket: process.env.CLOUDFLARE_R2_BUCKET,
     plan: "starter",
     createdAt: now,
     updatedAt: now,
   }).returning();
+
+  await ensureProjectDatabase(id, newProject.dbUrl);
 
   // Generate anon + service API keys
   const anonKey = "bud_anon_" + nanoid(32);

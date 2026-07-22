@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { project } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
 import { headers } from "next/headers";
-import { neon } from "@neondatabase/serverless";
+import { ensureProjectDatabase, getProjectSchemaName, getProjectSql, quoteIdent } from "@/lib/project-db";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -22,8 +22,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (forbidden.test(sql)) return NextResponse.json({ error: "Destructive queries are disabled in the editor." }, { status: 403 });
 
   try {
-    const neonSql = neon(proj.dbUrl || process.env.DATABASE_URL!);
-    const rows = await neonSql.query(sql);
+    await ensureProjectDatabase(id, proj.dbUrl);
+    const neonSql = getProjectSql(proj.dbUrl);
+    const schema = quoteIdent(getProjectSchemaName(id));
+    const rows = await neonSql.query(`SET search_path TO ${schema}, public; ${sql}`);
     return NextResponse.json({ rows });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Query failed";

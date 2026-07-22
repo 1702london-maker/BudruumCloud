@@ -5,14 +5,14 @@ import { Play, Plus, Save } from "lucide-react";
 type QueryRow = Record<string, string | number | boolean | null>;
 
 const SNIPPETS = [
-  { name: "List users", query: 'SELECT * FROM "user" ORDER BY "createdAt" DESC LIMIT 50;' },
-  { name: "List projects", query: 'SELECT * FROM "project" ORDER BY "createdAt" DESC LIMIT 50;' },
-  { name: "List API keys", query: 'SELECT id, name, type, "createdAt" FROM "api_key" LIMIT 50;' },
+  { name: "List products", query: 'SELECT * FROM "products" ORDER BY "created_at" DESC LIMIT 50;' },
+  { name: "Create products table", query: 'CREATE TABLE IF NOT EXISTS "products" ("id" text PRIMARY KEY, "name" text NOT NULL, "status" text NOT NULL DEFAULT \'active\', "created_at" timestamp NOT NULL DEFAULT now());' },
+  { name: "Insert sample product", query: 'INSERT INTO "products" ("id", "name", "status") VALUES (\'prod_\' || substr(md5(random()::text), 1, 16), \'First product\', \'active\') RETURNING *;' },
 ];
 
 export default function SqlPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const [sql, setSql] = useState('SELECT * FROM "user" LIMIT 10;');
+  const [sql, setSql] = useState('SELECT * FROM "products" LIMIT 10;');
   const [rows, setRows] = useState<QueryRow[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
   const [error, setError] = useState("");
