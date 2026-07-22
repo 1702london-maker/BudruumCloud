@@ -4,6 +4,10 @@ function hasEnv(name: string) {
   return Boolean(process.env[name]);
 }
 
+function hasAnyEnv(names: string[]) {
+  return names.some((name) => hasEnv(name));
+}
+
 export async function GET() {
   const checks = [
     { name: "Next.js API", status: "ok", detail: "Local API route is responding." },
@@ -31,8 +35,10 @@ export async function GET() {
     },
     {
       name: "Ably Realtime",
-      status: hasEnv("ABLY_API_KEY") ? "configured" : "missing",
-      detail: hasEnv("ABLY_API_KEY") ? "ABLY_API_KEY is set." : "Realtime is not wired until ABLY_API_KEY is set.",
+      status: hasAnyEnv(["ABLY_API_KEY", "ABLY_KEY", "ABLY_APP_KEY"]) ? "configured" : "missing",
+      detail: hasAnyEnv(["ABLY_API_KEY", "ABLY_KEY", "ABLY_APP_KEY"])
+        ? "Ably server key is set."
+        : "Realtime is not wired until ABLY_API_KEY is set.",
     },
   ];
 
