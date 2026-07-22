@@ -176,6 +176,34 @@ export default function ProjectOverviewPage({ params }: { params: Promise<{ id: 
         </div>
       </section>
 
+      <section className="border border-[#e8e8f0] rounded-[8px] p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-[14px] font-bold">Backend capability map</h2>
+            <p className="text-[12px] text-[#6b6b80] mt-1">What is wired today versus what still needs service engineering.</p>
+          </div>
+          <Link href={`${basePath(project.id)}/observability`} className="h-8 px-3 rounded-[7px] border border-[#dfe1ea] text-[12px] font-semibold">Open observability</Link>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            ["Project creation", "Live"],
+            ["Auth users", "Live"],
+            ["Table reads", "Live"],
+            ["SQL runner", "Live"],
+            ["Storage files", "Live"],
+            ["API keys", "Live"],
+            ["Realtime inspector", "Planned"],
+            ["Function deploys", "Planned"],
+            ["Metrics pipeline", "Planned"],
+          ].map(([name, status]) => (
+            <div key={name} className="rounded-[7px] border border-[#e8e8f0] px-3 py-2 flex items-center justify-between">
+              <span className="text-[12px] text-[#0d0d1a]">{name}</span>
+              <span className={`text-[10px] font-bold uppercase ${status === "Live" ? "text-green-700" : "text-amber-700"}`}>{status}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="border border-dashed border-[#dfe1ea] rounded-[8px] min-h-[190px] flex flex-col items-center justify-center">
         <h2 className="text-[15px] font-bold">Build a custom report</h2>
         <p className="text-[12.5px] text-[#6b6b80] mt-1 mb-4">Keep track of your most important metrics.</p>

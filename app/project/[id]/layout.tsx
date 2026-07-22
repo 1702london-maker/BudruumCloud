@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Activity, BarChart3, Bot, CircleHelp, Database, FileText, Home, KeyRound, Link2, Search, Settings, Shield, Table2, TerminalSquare, UploadCloud, Users, Zap } from "lucide-react";
+import { Activity, BarChart3, Bot, CircleHelp, Database, FileText, Home, KeyRound, Link2, Settings, Shield, Table2, TerminalSquare, UploadCloud, Users, Zap } from "lucide-react";
 import { signOut, useSession } from "@/lib/auth-client";
 
 const NAV = [
@@ -73,16 +73,12 @@ export default function ProjectLayout({ children, params }: { children: React.Re
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button className="hidden lg:inline-flex h-8 px-3 rounded-[7px] border border-[#dfe1ea] text-[12px] font-semibold">Connect</button>
-          <button className="hidden lg:inline-flex h-8 px-3 rounded-[7px] text-[12px] font-semibold text-[#6b6b80] hover:bg-[#f6f6fa]">Feedback</button>
-          <div className="hidden md:flex items-center gap-2 h-8 w-[280px] rounded-[7px] border border-[#e8e8f0] px-3 text-[#9494a8]">
-            <Search size={14} />
-            <span className="text-[12px]">Search... Ctrl K</span>
-          </div>
+          <Link href={`${base}/api-keys`} className="hidden lg:inline-flex h-8 px-3 rounded-[7px] border border-[#dfe1ea] text-[12px] font-semibold">API keys</Link>
+          <Link href={`${base}/logs`} className="hidden lg:inline-flex h-8 px-3 rounded-[7px] border border-[#dfe1ea] text-[12px] font-semibold">Logs</Link>
           <Link href="/backend" title="Backend health" className="w-8 h-8 rounded-full border border-[#e8e8f0] flex items-center justify-center text-[#6b6b80] hover:text-[#5890B8]">
             <Shield size={15} />
           </Link>
-          <Link href={`${base}/advisors`} title="Advisor Center" className="w-8 h-8 rounded-full border border-[#e8e8f0] flex items-center justify-center text-[#6b6b80] hover:text-[#5890B8]">
+          <Link href={`${base}/advisors`} title="Advisors" className="w-8 h-8 rounded-full border border-[#e8e8f0] flex items-center justify-center text-[#6b6b80] hover:text-[#5890B8]">
             <CircleHelp size={15} />
           </Link>
           <Link href={`${base}/sql`} title="SQL Editor" className="w-8 h-8 rounded-full border border-[#e8e8f0] flex items-center justify-center text-[#6b6b80] hover:text-[#5890B8]">
