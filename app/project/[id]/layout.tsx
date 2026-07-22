@@ -7,6 +7,8 @@ import Link from "next/link";
 const NAV = [
   { label: "Overview", path: "" },
   { label: "Database", path: "/database" },
+  { label: "Auth", path: "/auth" },
+  { label: "Storage", path: "/storage" },
   { label: "SQL Editor", path: "/editor" },
   { label: "API Keys", path: "/api-keys" },
   { label: "Settings", path: "/settings" },

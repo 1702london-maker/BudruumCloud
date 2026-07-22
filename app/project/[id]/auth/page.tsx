@@ -1,106 +1,116 @@
-import { Topbar } from "@/components/layout/topbar";
-import { UserPlus, Search, MoreHorizontal, Shield } from "lucide-react";
+﻿"use client";
+import { useEffect, useState } from "react";
 
-const USERS = [
-  { id: "u1", email: "alice@example.com", name: "Alice Martins", provider: "email", status: "confirmed", last_sign_in: "5 min ago", created: "20 Jul 2026" },
-  { id: "u2", email: "bob@example.com", name: "Bob Johnson", provider: "google", status: "confirmed", last_sign_in: "1 hour ago", created: "19 Jul 2026" },
-  { id: "u3", email: "carol@example.com", name: "Carol Smith", provider: "email", status: "confirmed", last_sign_in: "3 hours ago", created: "18 Jul 2026" },
-  { id: "u4", email: "dan@example.com", name: "Dan Williams", provider: "email", status: "banned", last_sign_in: "2 days ago", created: "17 Jul 2026" },
-  { id: "u5", email: "emma@example.com", name: "Emma Davis", provider: "google", status: "confirmed", last_sign_in: "3 days ago", created: "16 Jul 2026" },
-  { id: "u6", email: "frank@example.com", name: "Frank Brown", provider: "email", status: "unconfirmed", last_sign_in: "Never", created: "15 Jul 2026" },
-  { id: "u7", email: "grace@example.com", name: "Grace Wilson", provider: "email", status: "confirmed", last_sign_in: "1 week ago", created: "14 Jul 2026" },
-];
-
-const STATUS_STYLES: Record<string, string> = {
-  confirmed: "bg-[#f0fdf4] text-[#16a34a]",
-  unconfirmed: "bg-[#fffbeb] text-[#d97706]",
-  banned: "bg-[#fef2f2] text-[#dc2626]",
+type AuthUser = {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  createdAt: string;
 };
 
-export default function AuthPage() {
+export default function AuthPage({ params }: { params: { id: string } }) {
+  const [users, setUsers] = useState<AuthUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    fetch('/api/projects/' + params.id + '/auth-users')
+      .then(r => r.json())
+      .then(d => { setUsers(d.users || []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [params.id]);
+
+  const filtered = users.filter(u =>
+    u.email.toLowerCase().includes(search.toLowerCase()) ||
+    u.name?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="flex flex-col h-full">
-      <Topbar title="Authentication" subtitle="Manage your project's users" />
-      <div className="flex-1 overflow-auto px-6 py-6">
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          {[
-            { label: "Total users", value: "1,284" },
-            { label: "Confirmed", value: "1,270" },
-            { label: "New this week", value: "48" },
-            { label: "Banned", value: "1" },
-          ].map(({ label, value }) => (
-            <div key={label} className="border border-[#e8e8f0] rounded-[8px] px-4 py-3 bg-white">
-              <p className="text-[11px] text-[#9494a8] mb-1">{label}</p>
-              <p className="text-[20px] font-bold text-[#0d0d1a] leading-none">{value}</p>
-            </div>
-          ))}
+    <div className="space-y-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[18px] font-extrabold tracking-[-0.02em] text-[#0d0d1a]">Authentication</h1>
+          <p className="text-[12.5px] text-[#9494a8] mt-0.5">Manage users who have signed up to your project.</p>
+        </div>
+        <span className="text-[11px] font-semibold text-[#8BB8D8] bg-[#EEF5FB] border border-[#C5DCF0] px-3 py-1 rounded-full">
+          {users.length} users
+        </span>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: "Total users", value: users.length },
+          { label: "Verified", value: users.filter(u => u.emailVerified).length },
+          { label: "Unverified", value: users.filter(u => !u.emailVerified).length },
+        ].map(({ label, value }) => (
+          <div key={label} className="bg-white border border-[#e8e8f0] rounded-[12px] p-4">
+            <p className="text-[11px] font-semibold text-[#9494a8] uppercase tracking-wide mb-1">{label}</p>
+            <p className="text-[22px] font-extrabold text-[#0d0d1a]">{value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-white border border-[#e8e8f0] rounded-[14px] overflow-hidden">
+        <div className="px-5 py-3 border-b border-[#e8e8f0] flex items-center gap-3">
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by email or name..."
+            className="flex-1 text-[12.5px] text-[#0d0d1a] placeholder-[#c0c0d0] bg-transparent focus:outline-none"
+          />
         </div>
 
-        {/* Providers config */}
-        <div className="border border-[#e8e8f0] rounded-[8px] p-4 mb-6 bg-white">
-          <p className="text-[13px] font-semibold text-[#0d0d1a] mb-3 flex items-center gap-2"><Shield size={14} className="text-[#4231d0]" /> Auth providers</p>
-          <div className="flex gap-3">
-            {["Email / Password", "Google OAuth", "Magic Link", "GitHub OAuth"].map((p) => (
-              <div key={p} className="flex items-center gap-2 px-3 py-2 border border-[#e8e8f0] rounded-[6px] bg-[#f8f8fc] text-[12px] font-medium text-[#0d0d1a]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a]" />
-                {p}
-              </div>
-            ))}
-            <button className="px-3 py-2 border border-dashed border-[#e8e8f0] rounded-[6px] text-[12px] text-[#9494a8] hover:border-[#c4b8f8] hover:text-[#4231d0] transition-colors">
-              + Add provider
-            </button>
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="w-5 h-5 border-2 border-[#8BB8D8] border-t-transparent rounded-full animate-spin" />
           </div>
-        </div>
-
-        {/* Users table */}
-        <div className="border border-[#e8e8f0] rounded-[8px] overflow-hidden bg-white">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[#e8e8f0] bg-[#f8f8fc]">
-            <div className="flex items-center gap-2 text-[12px] text-[#9494a8] border border-[#e8e8f0] bg-white rounded-[5px] px-2.5 py-1.5 w-56">
-              <Search size={12} /> Search users...
-            </div>
-            <button className="flex items-center gap-1.5 bg-[#4231d0] text-white text-[12px] font-semibold px-3 py-1.5 rounded-[5px] hover:bg-[#3520b8] transition-colors">
-              <UserPlus size={12} /> Invite user
-            </button>
+        ) : filtered.length === 0 ? (
+          <div className="flex items-center justify-center py-16 flex-col gap-2">
+            <p className="text-[13px] font-semibold text-[#0d0d1a]">No users yet</p>
+            <p className="text-[12px] text-[#9494a8]">Users who sign up via your project will appear here.</p>
           </div>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b border-[#e8e8f0]">
-                {["User", "Provider", "Status", "Last sign in", "Created", ""].map((h) => (
-                  <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-[#9494a8]">{h}</th>
-                ))}
+        ) : (
+          <table className="w-full text-[12.5px]">
+            <thead className="bg-[#fafafa] border-b border-[#e8e8f0]">
+              <tr>
+                <th className="text-left px-5 py-2.5 font-semibold text-[#9494a8]">User</th>
+                <th className="text-left px-5 py-2.5 font-semibold text-[#9494a8]">Email</th>
+                <th className="text-left px-5 py-2.5 font-semibold text-[#9494a8]">Status</th>
+                <th className="text-left px-5 py-2.5 font-semibold text-[#9494a8]">Created</th>
               </tr>
             </thead>
             <tbody>
-              {USERS.map((u) => (
-                <tr key={u.id} className="border-b border-[#e8e8f0] last:border-0 hover:bg-[#f8f8fc] transition-colors group">
-                  <td className="px-4 py-3">
+              {filtered.map(u => (
+                <tr key={u.id} className="border-b border-[#f0f0f8] hover:bg-[#fafafa] transition-colors">
+                  <td className="px-5 py-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-full bg-[#ede9ff] flex items-center justify-center text-[#4231d0] text-[11px] font-bold">{u.name[0]}</div>
-                      <div>
-                        <p className="text-[13px] font-medium text-[#0d0d1a]">{u.name}</p>
-                        <p className="text-[11px] text-[#9494a8]">{u.email}</p>
+                      <div className="w-7 h-7 rounded-full bg-[#EEF5FB] border border-[#C5DCF0] flex items-center justify-center text-[10px] font-bold text-[#5890B8] flex-shrink-0">
+                        {u.name?.[0]?.toUpperCase() || u.email[0]?.toUpperCase()}
                       </div>
+                      <span className="font-medium text-[#0d0d1a]">{u.name || "—"}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
-                    <span className="text-[12px] font-medium text-[#6b6b80] bg-[#f3f3f8] px-2 py-0.5 rounded">{u.provider}</span>
+                  <td className="px-5 py-3 text-[#6b6b80] font-mono text-[11.5px]">{u.email}</td>
+                  <td className="px-5 py-3">
+                    <span className={"text-[10.5px] font-semibold px-2 py-0.5 rounded-full " + (u.emailVerified ? "bg-green-50 text-green-600" : "bg-amber-50 text-amber-600")}>
+                      {u.emailVerified ? "Verified" : "Unverified"}
+                    </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_STYLES[u.status] ?? ""}`}>{u.status}</span>
-                  </td>
-                  <td className="px-4 py-3 text-[12px] text-[#6b6b80]">{u.last_sign_in}</td>
-                  <td className="px-4 py-3 text-[12px] text-[#6b6b80]">{u.created}</td>
-                  <td className="px-4 py-3">
-                    <button className="opacity-0 group-hover:opacity-100 text-[#9494a8] hover:text-[#0d0d1a] transition-all">
-                      <MoreHorizontal size={14} />
-                    </button>
+                  <td className="px-5 py-3 text-[#9494a8]">
+                    {new Date(u.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        )}
+      </div>
+
+      <div className="bg-[#EEF5FB] border border-[#C5DCF0] rounded-[12px] p-4">
+        <p className="text-[12px] font-semibold text-[#5890B8] mb-1">Email + Password auth is enabled</p>
+        <p className="text-[11.5px] text-[#6b6b80]">Use the Budruum Auth SDK in your app to sign users up and in. Magic links, OAuth providers, and phone auth coming soon.</p>
       </div>
     </div>
   );
