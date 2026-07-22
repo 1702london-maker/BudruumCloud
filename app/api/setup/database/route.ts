@@ -17,9 +17,15 @@ export async function POST(req: NextRequest) {
   const applied: string[] = [];
 
   for (const statement of initialSchemaSql) {
-    await sql(statement);
     const match = statement.match(/CREATE TABLE IF NOT EXISTS "([^"]+)"/);
-    applied.push(match?.[1] || "statement");
+    const tableName = match?.[1] || "statement";
+    try {
+      await sql(statement);
+      applied.push(tableName);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Migration failed";
+      return NextResponse.json({ error: message, failed: tableName, applied }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ ok: true, applied });
