@@ -89,3 +89,12 @@ export async function listProjectColumns(projectId: string, table: string, dbUrl
     column_default: string | null;
   }[];
 }
+
+export async function listProjectSchema(projectId: string, dbUrl?: string | null) {
+  const tables = await listProjectTables(projectId, dbUrl);
+  const columns = await Promise.all(tables.map(async (table) => ({
+    name: table.table_name,
+    columns: await listProjectColumns(projectId, table.table_name, dbUrl),
+  })));
+  return columns;
+}

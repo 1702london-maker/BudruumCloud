@@ -3,6 +3,7 @@ import { neon } from "@neondatabase/serverless";
 import { isSafeIdentifier, requireProjectApiKey } from "@/lib/api-auth";
 import { ensureProjectDatabase, qualifyTable } from "@/lib/project-db";
 import { recordProjectLog, requestIp } from "@/lib/logging";
+import { canRead, canWrite, getTablePolicy } from "@/lib/policies";
 
 type Params = Promise<{ projectId: string; table: string }>;
 type JsonRecord = Record<string, string | number | boolean | null>;
@@ -39,6 +40,11 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
 
   if (invalidTable(table)) {
     return NextResponse.json({ error: "Invalid table name" }, { status: 400 });
+  }
+  const policy = await getTablePolicy(projectId, table);
+  if (!canRead(policy, auth.project.keyType)) {
+    await recordProjectLog({ projectId, service: "api", method: "GET", path: req.nextUrl.pathname + req.nextUrl.search, status: 403, durationMs: Date.now() - started, ipAddress: requestIp(req), message: `Read blocked by policy on ${table}` });
+    return NextResponse.json({ data: null, error: "Read blocked by table policy" }, { status: 403 });
   }
 
   const url = req.nextUrl;
@@ -92,6 +98,11 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
 
   if (invalidTable(table)) {
     return NextResponse.json({ error: "Invalid table name" }, { status: 400 });
+  }
+  const policy = await getTablePolicy(projectId, table);
+  if (!canWrite(policy, auth.project.keyType)) {
+    await recordProjectLog({ projectId, service: "api", method: "POST", path: req.nextUrl.pathname, status: 403, durationMs: Date.now() - started, ipAddress: requestIp(req), message: `Write blocked by policy on ${table}` });
+    return NextResponse.json({ data: null, error: "Write blocked by table policy" }, { status: 403 });
   }
 
   const body = await req.json().catch(() => null);
@@ -154,6 +165,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   if (invalidTable(table)) {
     return NextResponse.json({ error: "Invalid table name" }, { status: 400 });
   }
+  const policy = await getTablePolicy(projectId, table);
+  if (!canWrite(policy, auth.project.keyType)) {
+    await recordProjectLog({ projectId, service: "api", method: "PATCH", path: req.nextUrl.pathname + req.nextUrl.search, status: 403, durationMs: Date.now() - started, ipAddress: requestIp(req), message: `Write blocked by policy on ${table}` });
+    return NextResponse.json({ data: null, error: "Write blocked by table policy" }, { status: 403 });
+  }
 
   const body = await req.json().catch(() => null) as JsonRecord | null;
   if (!body || typeof body !== "object" || Array.isArray(body)) {
@@ -201,6 +217,11 @@ export async function DELETE(req: NextRequest, { params }: { params: Params }) {
 
   if (invalidTable(table)) {
     return NextResponse.json({ error: "Invalid table name" }, { status: 400 });
+  }
+  const policy = await getTablePolicy(projectId, table);
+  if (!canWrite(policy, auth.project.keyType)) {
+    await recordProjectLog({ projectId, service: "api", method: "DELETE", path: req.nextUrl.pathname + req.nextUrl.search, status: 403, durationMs: Date.now() - started, ipAddress: requestIp(req), message: `Write blocked by policy on ${table}` });
+    return NextResponse.json({ data: null, error: "Write blocked by table policy" }, { status: 403 });
   }
 
   const filterResult = buildFilters(req.nextUrl);

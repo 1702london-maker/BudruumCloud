@@ -94,3 +94,13 @@ export const projectFunction = pgTable("project_function", {
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
+
+export const projectPolicy = pgTable("project_policy", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull().references(() => project.id, { onDelete: "cascade" }),
+  tableName: text("table_name").notNull(),
+  readMode: text("read_mode").notNull().default("public"),
+  writeMode: text("write_mode").notNull().default("public"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
