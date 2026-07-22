@@ -27,7 +27,7 @@ export default function ApiKeysPage({ params }: { params: Promise<{ id: string }
   };
 
   return (
-    <div className="space-y-5 max-w-2xl">
+    <div className="space-y-5 max-w-2xl px-8 py-8">
       <div>
         <h1 className="text-[18px] font-extrabold tracking-[-0.02em] text-[#0d0d1a]">API Keys</h1>
         <p className="text-[12.5px] text-[#9494a8] mt-0.5">Use these keys to authenticate requests to your project.</p>

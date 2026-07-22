@@ -94,20 +94,7 @@ export default function ProjectLayout({ children, params }: { children: React.Re
       </header>
 
       <div className="flex">
-        <aside className="w-12 border-r border-[#e8e8f0] bg-[#fbfbfd] min-h-[calc(100vh-56px)] sticky top-14 flex flex-col items-center py-2 gap-1">
-          <nav className="flex flex-col items-center gap-1">
-            {NAV.map(({ label, path, href, icon: Icon }) => {
-              const active = path === "" ? pathname === base : pathname.startsWith(`${base}${path}`);
-              return (
-                <Link key={label} href={`${base}${href}`} title={label} className={`w-8 h-8 rounded-[7px] flex items-center justify-center transition-colors ${active ? "bg-[#EEF5FB] text-[#5890B8]" : "text-[#6b6b80] hover:bg-[#f0f0f6] hover:text-[#0d0d1a]"}`}>
-                  <Icon size={16} />
-                </Link>
-              );
-            })}
-          </nav>
-        </aside>
-
-        <aside className="w-[236px] border-r border-[#e8e8f0] bg-white min-h-[calc(100vh-56px)] sticky top-14">
+        <aside className="w-[236px] border-r border-[#e8e8f0] bg-white min-h-[calc(100vh-56px)] sticky top-14 shrink-0">
           <div className="p-3 border-b border-[#f0f0f6]">
             <Link href={base} className="w-full min-h-9 rounded-[7px] border border-[#e8e8f0] bg-[#fbfbfd] px-3 py-2 flex flex-col justify-center">
               <span className="text-[12px] font-semibold truncate">{projectName}</span>
@@ -137,7 +124,7 @@ export default function ProjectLayout({ children, params }: { children: React.Re
         </aside>
 
         <main className="flex-1 min-w-0 bg-white">
-          <div className="max-w-[1280px] mx-auto px-8 py-8">{children}</div>
+          <div className="min-w-0">{children}</div>
         </main>
       </div>
     </div>

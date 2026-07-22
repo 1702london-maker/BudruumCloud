@@ -74,7 +74,7 @@ export default function ProjectOverviewPage({ params }: { params: Promise<{ id: 
   }
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-[1280px] mx-auto px-8 py-8 space-y-8">
       <section className="grid grid-cols-[1fr_620px] gap-10 items-start">
         <div className="pt-16">
           <h1 className="text-[32px] font-bold tracking-[-0.035em] mb-4">{project.name}</h1>

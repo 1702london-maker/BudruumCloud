@@ -29,7 +29,7 @@ export default function AdvisorsPage({ params }: { params: Promise<{ id: string 
   const warnings = checks.filter((check) => check.status === "dev-default").length;
 
   return (
-    <div className="grid grid-cols-[224px_1fr] gap-0 -m-8 min-h-[calc(100vh-56px)]">
+    <div className="grid grid-cols-[224px_1fr] gap-0 min-h-[calc(100vh-56px)]">
       <aside className="border-r border-[#e8e8f0] bg-[#fbfbfd] p-4">
         <h1 className="text-[18px] font-bold mb-6">Advisors</h1>
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9494a8] mb-2">Advisors</p>

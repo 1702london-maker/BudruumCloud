@@ -29,7 +29,7 @@ export default function IntegrationsPage({ params }: { params: Promise<{ id: str
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-8 py-8">
       <div>
         <h1 className="text-[24px] font-bold tracking-[-0.02em]">Integrations</h1>
         <p className="text-[13px] text-[#6b6b80] mt-1">Connect Budruum to the services that provision and deploy client infrastructure.</p>

@@ -29,7 +29,7 @@ export default function TableEditorPage({ params }: { params: Promise<{ id: stri
   }, [activeTable, id]);
 
   return (
-    <div className="grid grid-cols-[248px_1fr] gap-0 -m-8 min-h-[calc(100vh-56px)]">
+    <div className="grid grid-cols-[248px_1fr] gap-0 min-h-[calc(100vh-56px)]">
       <aside className="border-r border-[#e8e8f0] bg-[#fbfbfd] p-4">
         <h1 className="text-[18px] font-bold mb-4">Table Editor</h1>
         <select className="w-full h-9 rounded-[7px] border border-[#dfe1ea] bg-white px-3 text-[12px] mb-2">
