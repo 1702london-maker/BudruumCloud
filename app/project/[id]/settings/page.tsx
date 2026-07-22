@@ -1,5 +1,6 @@
 "use client";
 import { use, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function ProjectSettingsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -27,13 +28,24 @@ export default function ProjectSettingsPage({ params }: { params: Promise<{ id: 
       <aside className="border-r border-[#e8e8f0] bg-[#fbfbfd] p-4">
         <h1 className="text-[18px] font-bold mb-6">Settings</h1>
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9494a8] mb-2">Configuration</p>
-        {["General", "Compute", "Infrastructure", "API Keys", "JWT Keys", "Log Drains", "Add-ons"].map((item, index) => (
-          <button key={item} className={`w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] ${index === 0 ? "bg-white font-bold text-[#0d0d1a]" : "text-[#6b6b80] hover:bg-white"}`}>{item}</button>
+        {[
+          ["General", `/project/${id}/settings/general`],
+          ["Compute", `/project/${id}/settings/compute`],
+          ["Infrastructure", `/project/${id}/settings/infrastructure`],
+          ["API Keys", `/project/${id}/api-keys`],
+          ["JWT Keys", `/project/${id}/settings/jwt-keys`],
+          ["Log Drains", `/project/${id}/settings/log-drains`],
+          ["Add-ons", `/project/${id}/settings/add-ons`],
+        ].map(([item, href], index) => (
+          <Link key={item} href={href} className={`flex items-center w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] ${index === 0 ? "bg-white font-bold text-[#0d0d1a]" : "text-[#6b6b80] hover:bg-white"}`}>{item}</Link>
         ))}
         <div className="h-px bg-[#e8e8f0] my-4" />
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9494a8] mb-2">Billing</p>
-        {["Subscription", "Usage"].map((item) => (
-          <button key={item} className="w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] text-[#6b6b80] hover:bg-white">{item}</button>
+        {[
+          ["Subscription", `/project/${id}/settings/subscription`],
+          ["Usage", `/project/${id}/settings/usage`],
+        ].map(([item, href]) => (
+          <Link key={item} href={href} className="flex items-center w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] text-[#6b6b80] hover:bg-white">{item}</Link>
         ))}
       </aside>
 

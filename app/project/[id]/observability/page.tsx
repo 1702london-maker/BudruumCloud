@@ -1,5 +1,6 @@
 "use client";
 import { use } from "react";
+import Link from "next/link";
 import { Activity, BarChart3, Clock, Database, Filter, Globe2, HardDrive, Shield, Zap } from "lucide-react";
 
 const SERVICE_ROWS = [
@@ -12,20 +13,23 @@ const SERVICE_ROWS = [
 ];
 
 export default function ObservabilityPage({ params }: { params: Promise<{ id: string }> }) {
-  use(params);
+  const { id } = use(params);
 
   return (
     <div className="grid grid-cols-[224px_1fr] gap-0 min-h-[calc(100vh-56px)]">
       <aside className="border-r border-[#e8e8f0] bg-[#fbfbfd] p-4">
         <h1 className="text-[18px] font-bold mb-6">Observability</h1>
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9494a8] mb-2">General</p>
-        {["API Gateway", "Query Performance"].map((item, index) => (
-          <button key={item} className={`w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] ${index === 0 ? "bg-white font-bold text-[#0d0d1a]" : "text-[#6b6b80] hover:bg-white"}`}>{item}</button>
+        {[
+          ["API Gateway", `/project/${id}/observability/api-overview`],
+          ["Query Performance", `/project/${id}/observability/query-performance`],
+        ].map(([item, href], index) => (
+          <Link key={item} href={href} className={`flex items-center w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] ${index === 0 ? "bg-white font-bold text-[#0d0d1a]" : "text-[#6b6b80] hover:bg-white"}`}>{item}</Link>
         ))}
         <div className="h-px bg-[#e8e8f0] my-4" />
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9494a8] mb-2">Product</p>
         {SERVICE_ROWS.slice(1).map((item) => (
-          <button key={item.name} className="w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] text-[#6b6b80] hover:bg-white">{item.name}</button>
+          <Link key={item.name} href={`/project/${id}/observability/${item.name === "Edge Functions" ? "functions" : item.name.toLowerCase()}`} className="flex items-center w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] text-[#6b6b80] hover:bg-white">{item.name}</Link>
         ))}
       </aside>
 

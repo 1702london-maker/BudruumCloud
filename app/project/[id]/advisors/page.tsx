@@ -1,5 +1,6 @@
 "use client";
 import { use, useEffect, useState } from "react";
+import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Gauge, RefreshCw, Shield } from "lucide-react";
 
 type HealthCheck = { name: string; status: string; detail: string };
@@ -11,7 +12,7 @@ function statusTone(status: string) {
 }
 
 export default function AdvisorsPage({ params }: { params: Promise<{ id: string }> }) {
-  use(params);
+  const { id } = use(params);
   const [checks, setChecks] = useState<HealthCheck[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -33,8 +34,12 @@ export default function AdvisorsPage({ params }: { params: Promise<{ id: string 
       <aside className="border-r border-[#e8e8f0] bg-[#fbfbfd] p-4">
         <h1 className="text-[18px] font-bold mb-6">Advisors</h1>
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9494a8] mb-2">Advisors</p>
-        {["Security Advisor", "Performance Advisor", "Query Performance"].map((item, index) => (
-          <button key={item} className={`w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] ${index === 0 ? "bg-white font-bold text-[#0d0d1a]" : "text-[#6b6b80] hover:bg-white"}`}>{item}</button>
+        {[
+          ["Security Advisor", `/project/${id}/advisors/security`],
+          ["Performance Advisor", `/project/${id}/advisors/performance`],
+          ["Query Performance", `/project/${id}/advisors/query-performance`],
+        ].map(([item, href], index) => (
+          <Link key={item} href={href} className={`flex items-center w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] ${index === 0 ? "bg-white font-bold text-[#0d0d1a]" : "text-[#6b6b80] hover:bg-white"}`}>{item}</Link>
         ))}
       </aside>
 
