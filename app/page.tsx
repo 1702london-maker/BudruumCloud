@@ -317,7 +317,7 @@ await db.storage
             <p className="text-[13.5px] text-[#6b6b80]">One flat monthly fee. All the infrastructure you need.</p>
           </div>
           <div className="grid grid-cols-3 gap-4">
-            {([
+            {[
               { name: "Starter", price: "£29", period: "/project/mo", desc: "Perfect for a client's first project.", features: ["1 Postgres database", "500MB storage", "10k API calls/day", "Up to 1,000 auth users", "Dashboard access", "GitHub integration"], cta: "Start free", highlight: false, href: "/signup" },
               { name: "Pro", price: "£79", period: "/project/mo", desc: "For projects with serious traffic.", features: ["Everything in Starter", "5GB storage", "100k API calls/day", "Unlimited auth users", "Branch preview DBs", "Edge Functions", "Realtime"], cta: "Get Pro", highlight: true, href: "/signup" },
               { name: "Agency", price: "£249", period: "/mo unlimited", desc: "All your client projects, one roof.", features: ["Everything in Pro", "Unlimited projects", "Custom domain", "White-label dashboard", "99.9% SLA", "Priority support", "Dedicated infra"], cta: "Talk to us", highlight: false, href: "/about" },
