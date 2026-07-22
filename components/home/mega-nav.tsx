@@ -56,68 +56,61 @@ export function MegaNav() {
                 >
                   {key === "Product" && (
                     <div className="grid grid-cols-3 gap-0">
-                      {/* Platform */}
                       <div className="p-6 border-r border-[#f0f0f5]">
                         <p className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#9494a8] mb-4">Platform</p>
                         <div className="space-y-0.5">
                           {[
-                            { label: "Database", sub: "Managed Postgres with branching" },
-                            { label: "Authentication", sub: "Email, OAuth, magic links, MFA" },
-                            { label: "Storage", sub: "S3-compatible via Cloudflare R2" },
-                            { label: "Edge Functions", sub: "Serverless on Cloudflare Workers" },
-                            { label: "Realtime", sub: "WebSocket subscriptions" },
+                            { label: "Database", sub: "Managed Postgres with branching", href: "/database" },
+                            { label: "Authentication", sub: "Email, OAuth, magic links, MFA", href: "/auth" },
+                            { label: "Storage", sub: "S3-compatible via Cloudflare R2", href: "/storage" },
+                            { label: "Edge Functions", sub: "Serverless on Cloudflare Workers", href: "/functions" },
+                            { label: "Realtime", sub: "WebSocket subscriptions", href: "/realtime" },
                           ].map((item) => (
-                            <a key={item.label} href="#" className="flex items-start gap-3 px-3 py-2.5 rounded-[8px] hover:bg-[#EEF5FB] transition-colors group">
+                            <Link key={item.label} href={item.href} className="flex items-start gap-3 px-3 py-2.5 rounded-[8px] hover:bg-[#EEF5FB] transition-colors group" onClick={() => setOpen(null)}>
                               <div className="w-1.5 h-1.5 rounded-full bg-[#C5DCF0] shrink-0 mt-[6px] group-hover:bg-[#8BB8D8] transition-colors" />
                               <div>
                                 <p className="text-[13px] font-semibold text-[#1b1b23] leading-none mb-0.5">{item.label}</p>
                                 <p className="text-[11.5px] text-[#9494a8] leading-tight">{item.sub}</p>
                               </div>
-                            </a>
+                            </Link>
                           ))}
                         </div>
                       </div>
-
-                      {/* Add-ons */}
                       <div className="p-6 border-r border-[#f0f0f5]">
                         <p className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#9494a8] mb-4">Add-ons</p>
                         <div className="space-y-0.5 mb-6">
                           {[
-                            { label: "GitHub Integration", sub: "Branch preview databases on PRs" },
-                            { label: "Vercel Connect", sub: "Auto env injection on deploy" },
-                            { label: "Analytics", sub: "API usage, errors and latency" },
+                            { label: "GitHub Integration", sub: "Branch preview databases on PRs", href: "/docs" },
+                            { label: "Vercel Connect", sub: "Auto env injection on deploy", href: "/docs" },
+                            { label: "Analytics", sub: "API usage, errors and latency", href: "/docs" },
                           ].map((item) => (
-                            <a key={item.label} href="#" className="flex items-start gap-3 px-3 py-2.5 rounded-[8px] hover:bg-[#EEF5FB] transition-colors group">
+                            <Link key={item.label} href={item.href} className="flex items-start gap-3 px-3 py-2.5 rounded-[8px] hover:bg-[#EEF5FB] transition-colors group" onClick={() => setOpen(null)}>
                               <div className="w-1.5 h-1.5 rounded-full bg-[#C5DCF0] shrink-0 mt-[6px] group-hover:bg-[#8BB8D8] transition-colors" />
                               <div>
                                 <p className="text-[13px] font-semibold text-[#1b1b23] leading-none mb-0.5">{item.label}</p>
                                 <p className="text-[11.5px] text-[#9494a8] leading-tight">{item.sub}</p>
                               </div>
-                            </a>
+                            </Link>
                           ))}
                         </div>
                         <div className="border-t border-[#f0f0f5] pt-4">
                           <p className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#9494a8] mb-3">Migrate</p>
-                          {["From AWS Amplify", "From PlanetScale", "From Neon"].map((t) => (
-                            <a key={t} href="#" className="block text-[12.5px] text-[#6b6b80] hover:text-[#1b1b23] py-1.5 px-3 rounded-[6px] hover:bg-[#EEF5FB] transition-colors">{t}</a>
+                          {[{ label: "From AWS Amplify", href: "/docs" }, { label: "From PlanetScale", href: "/docs" }, { label: "From Neon", href: "/docs" }].map((t) => (
+                            <Link key={t.label} href={t.href} className="block text-[12.5px] text-[#6b6b80] hover:text-[#1b1b23] py-1.5 px-3 rounded-[6px] hover:bg-[#EEF5FB] transition-colors" onClick={() => setOpen(null)}>{t.label}</Link>
                           ))}
                         </div>
                       </div>
-
-                      {/* Right feature callout */}
                       <div className="p-6 bg-[#fafafa]">
                         <p className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#9494a8] mb-4">Highlight</p>
-                        <div className="rounded-[10px] border border-[#C5DCF0] bg-[#EEF5FB] p-4 mb-4">
+                        <Link href="/database" onClick={() => setOpen(null)} className="block rounded-[10px] border border-[#C5DCF0] bg-[#EEF5FB] p-4 mb-4 hover:border-[#8BB8D8] transition-colors">
                           <p className="text-[13px] font-bold text-[#1b1b23] mb-1">Branch preview databases</p>
                           <p className="text-[12px] text-[#6b6b80] leading-relaxed">Every pull request gets its own isolated Postgres database, automatically.</p>
-                          <a href="#" className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#8BB8D8] mt-3 hover:text-[#5890B8]">
-                            Learn more <ArrowRight size={11} />
-                          </a>
-                        </div>
-                        <div className="rounded-[10px] border border-[#e8e8f0] bg-white p-4">
+                          <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#8BB8D8] mt-3">Learn more <ArrowRight size={11} /></span>
+                        </Link>
+                        <Link href="/docs" onClick={() => setOpen(null)} className="block rounded-[10px] border border-[#e8e8f0] bg-white p-4 hover:border-[#C5DCF0] transition-colors">
                           <p className="text-[13px] font-bold text-[#1b1b23] mb-1">Vercel auto-inject</p>
                           <p className="text-[12px] text-[#6b6b80] leading-relaxed">Connect once and all env vars push to every Vercel deploy.</p>
-                        </div>
+                        </Link>
                       </div>
                     </div>
                   )}
@@ -128,19 +121,19 @@ export function MegaNav() {
                         <p className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#9494a8] mb-4">Resources</p>
                         <div className="space-y-0.5">
                           {[
-                            { label: "Documentation", sub: "Guides and full API reference" },
-                            { label: "SDK Reference", sub: "@budruum/client — quick start" },
-                            { label: "Open Source", sub: "Core libraries on GitHub" },
-                            { label: "Changelog", sub: "Latest platform updates" },
-                            { label: "Status", sub: "Uptime and incident history" },
+                            { label: "Documentation", sub: "Guides and full API reference", href: "/docs" },
+                            { label: "SDK Reference", sub: "@budruum/client — quick start", href: "/docs" },
+                            { label: "Open Source", sub: "Core libraries on GitHub", href: "/docs" },
+                            { label: "Changelog", sub: "Latest platform updates", href: "/changelog" },
+                            { label: "Security", sub: "Our security posture and policies", href: "/security" },
                           ].map((item) => (
-                            <a key={item.label} href="#" className="flex items-start gap-3 px-3 py-2.5 rounded-[8px] hover:bg-[#EEF5FB] transition-colors group">
+                            <Link key={item.label} href={item.href} className="flex items-start gap-3 px-3 py-2.5 rounded-[8px] hover:bg-[#EEF5FB] transition-colors group" onClick={() => setOpen(null)}>
                               <div className="w-1.5 h-1.5 rounded-full bg-[#C5DCF0] shrink-0 mt-[6px] group-hover:bg-[#8BB8D8] transition-colors" />
                               <div>
                                 <p className="text-[13px] font-semibold text-[#1b1b23] leading-none mb-0.5">{item.label}</p>
                                 <p className="text-[11.5px] text-[#9494a8] leading-tight">{item.sub}</p>
                               </div>
-                            </a>
+                            </Link>
                           ))}
                         </div>
                       </div>
@@ -152,10 +145,10 @@ export function MegaNav() {
                             { label: "Branch preview DBs explained", sub: "How isolated preview databases work under the hood" },
                             { label: "Building at the edge", sub: "Why Cloudflare Workers power our functions" },
                           ].map((item) => (
-                            <a key={item.label} href="#" className="block p-3.5 rounded-[9px] border border-[#e8e8f0] bg-white hover:border-[#C5DCF0] hover:bg-[#EEF5FB] transition-all">
+                            <Link key={item.label} href="/blog" className="block p-3.5 rounded-[9px] border border-[#e8e8f0] bg-white hover:border-[#C5DCF0] hover:bg-[#EEF5FB] transition-all" onClick={() => setOpen(null)}>
                               <p className="text-[12.5px] font-semibold text-[#1b1b23] mb-1 leading-snug">{item.label}</p>
                               <p className="text-[11.5px] text-[#9494a8] leading-snug">{item.sub}</p>
-                            </a>
+                            </Link>
                           ))}
                         </div>
                       </div>
@@ -168,18 +161,18 @@ export function MegaNav() {
                         <p className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#9494a8] mb-4">Who it&apos;s for</p>
                         <div className="space-y-0.5">
                           {[
-                            { label: "Agencies", sub: "All client projects under one roof" },
-                            { label: "Startups", sub: "Ship fast on solid infrastructure" },
-                            { label: "Enterprise", sub: "Custom SLAs and dedicated infra" },
-                            { label: "Freelancers", sub: "Your own BaaS, your margins" },
+                            { label: "Agencies", sub: "All client projects under one roof", href: "/customers" },
+                            { label: "Startups", sub: "Ship fast on solid infrastructure", href: "/customers" },
+                            { label: "Enterprise", sub: "Custom SLAs and dedicated infra", href: "/about" },
+                            { label: "Freelancers", sub: "Your own BaaS, your margins", href: "/pricing" },
                           ].map((item) => (
-                            <a key={item.label} href="#" className="flex items-start gap-3 px-3 py-2.5 rounded-[8px] hover:bg-[#EEF5FB] transition-colors group">
+                            <Link key={item.label} href={item.href} className="flex items-start gap-3 px-3 py-2.5 rounded-[8px] hover:bg-[#EEF5FB] transition-colors group" onClick={() => setOpen(null)}>
                               <div className="w-1.5 h-1.5 rounded-full bg-[#C5DCF0] shrink-0 mt-[6px] group-hover:bg-[#8BB8D8] transition-colors" />
                               <div>
                                 <p className="text-[13px] font-semibold text-[#1b1b23] leading-none mb-0.5">{item.label}</p>
                                 <p className="text-[11.5px] text-[#9494a8] leading-tight">{item.sub}</p>
                               </div>
-                            </a>
+                            </Link>
                           ))}
                         </div>
                       </div>
@@ -187,18 +180,18 @@ export function MegaNav() {
                         <p className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#9494a8] mb-4">App type</p>
                         <div className="space-y-0.5">
                           {[
-                            { label: "SaaS", sub: "Multi-tenant web applications" },
-                            { label: "B2B platforms", sub: "Client portals and dashboards" },
-                            { label: "Mobile backends", sub: "React Native & Flutter" },
-                            { label: "AI applications", sub: "Vector search and edge functions" },
+                            { label: "SaaS", sub: "Multi-tenant web applications", href: "/customers" },
+                            { label: "B2B platforms", sub: "Client portals and dashboards", href: "/customers" },
+                            { label: "Mobile backends", sub: "React Native & Flutter", href: "/docs" },
+                            { label: "AI applications", sub: "Vector search and edge functions", href: "/docs" },
                           ].map((item) => (
-                            <a key={item.label} href="#" className="flex items-start gap-3 px-3 py-2.5 rounded-[8px] hover:bg-[#EEF5FB] transition-colors group">
+                            <Link key={item.label} href={item.href} className="flex items-start gap-3 px-3 py-2.5 rounded-[8px] hover:bg-[#EEF5FB] transition-colors group" onClick={() => setOpen(null)}>
                               <div className="w-1.5 h-1.5 rounded-full bg-[#C5DCF0] shrink-0 mt-[6px] group-hover:bg-[#8BB8D8] transition-colors" />
                               <div>
                                 <p className="text-[13px] font-semibold text-[#1b1b23] leading-none mb-0.5">{item.label}</p>
                                 <p className="text-[11.5px] text-[#9494a8] leading-tight">{item.sub}</p>
                               </div>
-                            </a>
+                            </Link>
                           ))}
                         </div>
                       </div>
@@ -209,8 +202,9 @@ export function MegaNav() {
             </div>
           ))}
 
-          <a href="#pricing" className="px-4 py-2 text-[13.5px] font-medium text-[#555566] hover:text-[#1b1b23] hover:bg-[#f5f5f9] rounded-[6px] transition-colors">Pricing</a>
-          <a href="#" className="px-4 py-2 text-[13.5px] font-medium text-[#555566] hover:text-[#1b1b23] hover:bg-[#f5f5f9] rounded-[6px] transition-colors">Docs</a>
+          <Link href="/pricing" className="px-4 py-2 text-[13.5px] font-medium text-[#555566] hover:text-[#1b1b23] hover:bg-[#f5f5f9] rounded-[6px] transition-colors">Pricing</Link>
+          <Link href="/docs" className="px-4 py-2 text-[13.5px] font-medium text-[#555566] hover:text-[#1b1b23] hover:bg-[#f5f5f9] rounded-[6px] transition-colors">Docs</Link>
+          <Link href="/blog" className="px-4 py-2 text-[13.5px] font-medium text-[#555566] hover:text-[#1b1b23] hover:bg-[#f5f5f9] rounded-[6px] transition-colors">Blog</Link>
         </div>
 
         <div className="flex items-center gap-3">

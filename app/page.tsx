@@ -14,12 +14,12 @@ const BudruumLogo = ({ size = 32 }: { size?: number }) => (
 );
 
 const FEATURES = [
-  { icon: Database, label: "Postgres Database", desc: "Serverless PostgreSQL with instant branching. Every client gets an isolated database, fully managed.", tag: "Core" },
-  { icon: Shield, label: "Authentication", desc: "Email, OAuth, magic links, MFA and session management. Enterprise-grade identity, zero setup.", tag: "Core" },
-  { icon: HardDrive, label: "File Storage", desc: "S3-compatible object storage via Cloudflare R2. Zero egress fees, presigned URLs, public or private buckets.", tag: "Core" },
-  { icon: Zap, label: "Edge Functions", desc: "TypeScript serverless functions on Cloudflare Workers. Webhooks, cron, AI calls — globally distributed.", tag: "Advanced" },
-  { icon: GitBranch, label: "GitHub Integration", desc: "Push to a branch, get an isolated preview database automatically. Merge and migrations apply to production.", tag: "Advanced" },
-  { icon: Key, label: "Auto Env Injection", desc: "Connect Vercel and all API keys push to every deployment automatically. No manual .env copying.", tag: "Advanced" },
+  { icon: Database, label: "Postgres Database", desc: "Serverless PostgreSQL with instant branching. Every client gets an isolated database, fully managed.", tag: "Core", href: "/database" },
+  { icon: Shield, label: "Authentication", desc: "Email, OAuth, magic links, MFA and session management. Enterprise-grade identity, zero setup.", tag: "Core", href: "/auth" },
+  { icon: HardDrive, label: "File Storage", desc: "S3-compatible object storage via Cloudflare R2. Zero egress fees, presigned URLs, public or private buckets.", tag: "Core", href: "/storage" },
+  { icon: Zap, label: "Edge Functions", desc: "TypeScript serverless functions on Cloudflare Workers. Webhooks, cron, AI calls — globally distributed.", tag: "Advanced", href: "/functions" },
+  { icon: GitBranch, label: "GitHub Integration", desc: "Push to a branch, get an isolated preview database automatically. Merge and migrations apply to production.", tag: "Advanced", href: "/docs" },
+  { icon: Key, label: "Auto Env Injection", desc: "Connect Vercel and all API keys push to every deployment automatically. No manual .env copying.", tag: "Advanced", href: "/docs" },
 ];
 
 const STACK = [
@@ -98,8 +98,8 @@ export default function HomePage() {
             <Link href="/signup" className="btn-primary inline-flex items-center gap-2 bg-[#8BB8D8] text-white text-[13px] font-semibold px-5 py-2.5 rounded-[7px] shadow-sm">
               Start building free <ArrowRight size={13} />
             </Link>
-            <Link href="/dashboard" className="inline-flex items-center gap-2 text-[13px] font-medium text-[#555566] px-5 py-2.5 rounded-[7px] border border-[#e8e8f0] hover:border-[#C5DCF0] hover:bg-[#EEF5FB] transition-all">
-              View demo
+            <Link href="/signup" className="inline-flex items-center gap-2 text-[13px] font-medium text-[#555566] px-5 py-2.5 rounded-[7px] border border-[#e8e8f0] hover:border-[#C5DCF0] hover:bg-[#EEF5FB] transition-all">
+              See the dashboard
             </Link>
           </div>
 
@@ -192,8 +192,8 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            {FEATURES.map(({ icon: Icon, label, desc, tag }) => (
-              <div key={label} className="feature-card border border-[#e8e8f0] rounded-[11px] p-5 bg-white cursor-default">
+            {FEATURES.map(({ icon: Icon, label, desc, tag, href }) => (
+              <Link key={label} href={href} className="feature-card border border-[#e8e8f0] rounded-[11px] p-5 bg-white hover:border-[#C5DCF0] hover:shadow-sm transition-all">
                 <div className="flex items-start justify-between mb-4">
                   <div className="card-icon w-9 h-9 rounded-[8px] bg-[#EEF5FB] border border-[#C5DCF0] flex items-center justify-center transition-all">
                     <Icon size={15} className="text-[#5890B8]" />
@@ -202,7 +202,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-[13px] font-bold text-[#0d0d1a] mb-1.5">{label}</h3>
                 <p className="text-[12px] text-[#6b6b80] leading-[1.6]">{desc}</p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -317,10 +317,10 @@ await db.storage
             <p className="text-[13.5px] text-[#6b6b80]">One flat monthly fee. All the infrastructure you need.</p>
           </div>
           <div className="grid grid-cols-3 gap-4">
-            {[
-              { name: "Starter", price: "£29", period: "/project/mo", desc: "Perfect for a client's first project.", features: ["1 Postgres database", "500MB storage", "10k API calls/day", "Up to 1,000 auth users", "Dashboard access", "GitHub integration"], cta: "Start free", highlight: false },
-              { name: "Pro", price: "£79", period: "/project/mo", desc: "For projects with serious traffic.", features: ["Everything in Starter", "5GB storage", "100k API calls/day", "Unlimited auth users", "Branch preview DBs", "Edge Functions", "Realtime"], cta: "Get Pro", highlight: true },
-              { name: "Agency", price: "£249", period: "/mo unlimited", desc: "All your client projects, one roof.", features: ["Everything in Pro", "Unlimited projects", "Custom domain", "White-label dashboard", "99.9% SLA", "Priority support", "Dedicated infra"], cta: "Talk to us", highlight: false },
+            {([
+              { name: "Starter", price: "£29", period: "/project/mo", desc: "Perfect for a client's first project.", features: ["1 Postgres database", "500MB storage", "10k API calls/day", "Up to 1,000 auth users", "Dashboard access", "GitHub integration"], cta: "Start free", highlight: false, href: "/signup" },
+              { name: "Pro", price: "£79", period: "/project/mo", desc: "For projects with serious traffic.", features: ["Everything in Starter", "5GB storage", "100k API calls/day", "Unlimited auth users", "Branch preview DBs", "Edge Functions", "Realtime"], cta: "Get Pro", highlight: true, href: "/signup" },
+              { name: "Agency", price: "£249", period: "/mo unlimited", desc: "All your client projects, one roof.", features: ["Everything in Pro", "Unlimited projects", "Custom domain", "White-label dashboard", "99.9% SLA", "Priority support", "Dedicated infra"], cta: "Talk to us", highlight: false, href: "/about" },
             ].map((tier) => (
               <div key={tier.name} className={`pricing-card rounded-[11px] overflow-hidden border h-full ${tier.highlight ? "border-[#8BB8D8] shadow-[0_8px_32px_rgba(139,184,216,0.22)]" : "border-[#e8e8f0]"}`}>
                 {tier.highlight && <div className="bg-[#8BB8D8] py-1.5 text-center text-[9.5px] font-bold text-white tracking-widest uppercase">Most popular</div>}
@@ -331,7 +331,7 @@ await db.storage
                     <span className="text-[11.5px] text-[#9494a8] mb-1.5">{tier.period}</span>
                   </div>
                   <p className="text-[12px] text-[#6b6b80] mb-4">{tier.desc}</p>
-                  <Link href="/signup" className={`flex items-center justify-center w-full py-2 rounded-[7px] text-[12.5px] font-semibold transition-all mb-4 ${tier.highlight ? "bg-[#8BB8D8] text-white hover:bg-[#6FA3C8]" : "bg-[#f3f3f8] text-[#0d0d1a] hover:bg-[#EEF5FB] border border-[#e8e8f0]"}`}>
+                  <Link href={tier.href} className={`flex items-center justify-center w-full py-2 rounded-[7px] text-[12.5px] font-semibold transition-all mb-4 ${tier.highlight ? "bg-[#8BB8D8] text-white hover:bg-[#6FA3C8]" : "bg-[#f3f3f8] text-[#0d0d1a] hover:bg-[#EEF5FB] border border-[#e8e8f0]"}`}>
                     {tier.cta}
                   </Link>
                   <div className="space-y-2">
@@ -389,8 +389,45 @@ await db.storage
             <Link href="/signup" className="btn-primary inline-flex items-center gap-2 bg-[#8BB8D8] text-white text-[13px] font-semibold px-5 py-2.5 rounded-[7px] shadow-sm">
               Create free account <ArrowRight size={13} />
             </Link>
-            <Link href="/dashboard" className="inline-flex items-center gap-2 text-[13px] font-medium text-[#555566] px-5 py-2.5 rounded-[7px] border border-[#C5DCF0] bg-white hover:border-[#8BB8D8] transition-all">
-              View demo
+            <Link href="/signup" className="inline-flex items-center gap-2 text-[13px] font-medium text-[#555566] px-5 py-2.5 rounded-[7px] border border-[#C5DCF0] bg-white hover:border-[#8BB8D8] transition-all">
+              Create free account
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── TESTIMONIALS ─── */}
+      <section className="px-6 py-20 bg-white border-y border-[#ebebf0]">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8BB8D8] mb-2.5">Customers</p>
+            <h2 className="text-[26px] font-extrabold tracking-[-0.025em] text-[#0d0d1a] mb-2">Trusted by agencies worldwide.</h2>
+            <p className="text-[13.5px] text-[#6b6b80]">Here&apos;s what teams building on Budruum say.</p>
+          </div>
+          <div className="grid grid-cols-3 gap-5">
+            {[
+              { quote: "We used to spend £400/month across multiple platforms per client. Budruum is £29 total and covers all of it.", name: "Sarah M.", role: "Technical Director, Craft Studio", initial: "S" },
+              { quote: "The branch preview database feature alone saved us three client incidents last quarter. Nothing like it exists anywhere else.", name: "James K.", role: "CTO, Foundry Digital", initial: "J" },
+              { quote: "Our clients see the Budruum dashboard and think we built custom infrastructure. That's the white-label dream right there.", name: "Priya N.", role: "Founder, Studio North", initial: "P" },
+              { quote: "Switching from Supabase meant we own our margins again. Budruum's agency plan paid for itself in the first week.", name: "Tom R.", role: "Lead Engineer, Watershed", initial: "T" },
+              { quote: "EU data residency out of the box, no configuration. Our compliance team signed off in 10 minutes. Unheard of.", name: "Elena V.", role: "Head of Eng, Arc Collective", initial: "E" },
+              { quote: "I have 14 client projects running on Budruum. One dashboard, one invoice, zero drama. I'm never going back.", name: "Marcus O.", role: "Freelance Tech Lead", initial: "M" },
+            ].map(({ quote, name, role, initial }) => (
+              <div key={name} className="bg-[#fafafa] border border-[#e8e8f0] rounded-[14px] p-5 flex flex-col gap-4">
+                <p className="text-[12.5px] text-[#0d0d1a] leading-relaxed flex-1">&ldquo;{quote}&rdquo;</p>
+                <div className="flex items-center gap-2.5 pt-2 border-t border-[#f0f0f8]">
+                  <div className="w-8 h-8 rounded-full bg-[#EEF5FB] border border-[#C5DCF0] flex items-center justify-center text-[11px] font-bold text-[#5890B8] flex-shrink-0">{initial}</div>
+                  <div>
+                    <p className="text-[12px] font-semibold text-[#0d0d1a]">{name}</p>
+                    <p className="text-[11px] text-[#9494a8]">{role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/customers" className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#5890B8] hover:text-[#8BB8D8] transition-colors">
+              Read customer stories <ArrowRight size={13} />
             </Link>
           </div>
         </div>
@@ -403,24 +440,42 @@ await db.storage
             <div>
               <p className="text-[9.5px] font-bold uppercase tracking-widest text-[#9494a8] mb-3.5">Product</p>
               <div className="space-y-2">
-                {["Features", "Pricing", "Changelog", "Roadmap", "Status"].map((l) => (
-                  <a key={l} href="#" className="block text-[12px] text-[#6b6b80] hover:text-[#0d0d1a] transition-colors">{l}</a>
+                {[
+                  { l: "Features", href: "/#features" },
+                  { l: "Pricing", href: "/pricing" },
+                  { l: "Changelog", href: "/changelog" },
+                  { l: "Security", href: "/security" },
+                  { l: "Customers", href: "/customers" },
+                ].map(({ l, href }) => (
+                  <Link key={l} href={href} className="block text-[12px] text-[#6b6b80] hover:text-[#0d0d1a] transition-colors">{l}</Link>
                 ))}
               </div>
             </div>
             <div>
               <p className="text-[9.5px] font-bold uppercase tracking-widest text-[#9494a8] mb-3.5">Developers</p>
               <div className="space-y-2">
-                {["Documentation", "API Reference", "@budruum/client", "Open Source", "Community"].map((l) => (
-                  <a key={l} href="#" className="block text-[12px] text-[#6b6b80] hover:text-[#0d0d1a] transition-colors">{l}</a>
+                {[
+                  { l: "Documentation", href: "/docs" },
+                  { l: "API Reference", href: "/docs" },
+                  { l: "Database", href: "/database" },
+                  { l: "Storage", href: "/storage" },
+                  { l: "Edge Functions", href: "/functions" },
+                ].map(({ l, href }) => (
+                  <Link key={l} href={href} className="block text-[12px] text-[#6b6b80] hover:text-[#0d0d1a] transition-colors">{l}</Link>
                 ))}
               </div>
             </div>
             <div>
               <p className="text-[9.5px] font-bold uppercase tracking-widest text-[#9494a8] mb-3.5">Company</p>
               <div className="space-y-2">
-                {["About", "Blog", "Careers", "Privacy", "Terms"].map((l) => (
-                  <a key={l} href="#" className="block text-[12px] text-[#6b6b80] hover:text-[#0d0d1a] transition-colors">{l}</a>
+                {[
+                  { l: "About", href: "/about" },
+                  { l: "Blog", href: "/blog" },
+                  { l: "Changelog", href: "/changelog" },
+                  { l: "Privacy", href: "/security" },
+                  { l: "Terms", href: "/security" },
+                ].map(({ l, href }) => (
+                  <Link key={l} href={href} className="block text-[12px] text-[#6b6b80] hover:text-[#0d0d1a] transition-colors">{l}</Link>
                 ))}
               </div>
             </div>
@@ -428,7 +483,7 @@ await db.storage
               <p className="text-[9.5px] font-bold uppercase tracking-widest text-[#9494a8] mb-3.5">Connect</p>
               <div className="space-y-2">
                 {[{ l: "GitHub", I: GitHubIcon }, { l: "Vercel", I: VercelIcon }, { l: "Discord", I: DiscordIcon }, { l: "Instagram", I: InstagramIcon }, { l: "TikTok", I: TikTokIcon }].map(({ l, I }) => (
-                  <a key={l} href="#" className="flex items-center gap-2 text-[12px] text-[#6b6b80] hover:text-[#0d0d1a] transition-colors">
+                  <a key={l} href="https://github.com/1702london-maker/BudruumCloud" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[12px] text-[#6b6b80] hover:text-[#0d0d1a] transition-colors">
                     <I />{l}
                   </a>
                 ))}
