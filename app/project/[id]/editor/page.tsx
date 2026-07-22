@@ -1,136 +1,86 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
-import { Topbar } from "@/components/layout/topbar";
-import { Plus, Filter, Search, ChevronDown, MoreHorizontal, RefreshCw } from "lucide-react";
 
-const TABLES = ["users", "products", "orders", "categories", "reviews", "sessions"];
+type QueryRow = Record<string, string | number | boolean | null>;
 
-const COLUMNS = ["id", "created_at", "email", "full_name", "role", "status"];
-const ROWS = [
-  { id: "1", created_at: "2026-07-20 09:14", email: "alice@example.com", full_name: "Alice Martins", role: "admin", status: "active" },
-  { id: "2", created_at: "2026-07-19 14:22", email: "bob@example.com", full_name: "Bob Johnson", role: "user", status: "active" },
-  { id: "3", created_at: "2026-07-18 11:03", email: "carol@example.com", full_name: "Carol Smith", role: "user", status: "inactive" },
-  { id: "4", created_at: "2026-07-17 08:55", email: "dan@example.com", full_name: "Dan Williams", role: "editor", status: "active" },
-  { id: "5", created_at: "2026-07-16 16:41", email: "emma@example.com", full_name: "Emma Davis", role: "user", status: "active" },
-  { id: "6", created_at: "2026-07-15 12:30", email: "frank@example.com", full_name: "Frank Brown", role: "user", status: "inactive" },
-  { id: "7", created_at: "2026-07-14 10:18", email: "grace@example.com", full_name: "Grace Wilson", role: "admin", status: "active" },
-];
+export default function SQLEditorPage({ params }: { params: { id: string } }) {
+  const [sql, setSql] = useState('SELECT * FROM "user" LIMIT 10;');
+  const [rows, setRows] = useState<QueryRow[]>([]);
+  const [columns, setColumns] = useState<string[]>([]);
+  const [error, setError] = useState("");
+  const [running, setRunning] = useState(false);
+  const [time, setTime] = useState<number | null>(null);
 
-export default function EditorPage() {
-  const [activeTable, setActiveTable] = useState("users");
+  async function run() {
+    setRunning(true); setError(""); setRows([]); setColumns([]);
+    const start = performance.now();
+    try {
+      const res = await fetch('/api/projects/' + params.id + '/query', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sql }),
+      });
+      const data = await res.json();
+      setTime(Math.round(performance.now() - start));
+      if (!res.ok) { setError(data.error || "Query failed."); }
+      else {
+        const r = data.rows || [];
+        if (r.length > 0) { setColumns(Object.keys(r[0])); setRows(r); }
+      }
+    } catch { setError("Network error."); }
+    finally { setRunning(false); }
+  }
 
   return (
-    <div className="flex flex-col h-full">
-      <Topbar title="Table Editor" subtitle="View and edit your database records" />
-      <div className="flex flex-1 overflow-hidden">
-        {/* Table list sidebar */}
-        <div className="w-[192px] border-r border-[#e8e8f0] bg-[#f8f8fc] flex flex-col shrink-0">
-          <div className="px-3 pt-3 pb-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#9494a8] px-1 mb-2">Tables</p>
-          </div>
-          <div className="flex-1 overflow-y-auto px-2 space-y-0.5">
-            {TABLES.map((t) => (
-              <button
-                key={t}
-                onClick={() => setActiveTable(t)}
-                className={`w-full text-left px-2.5 py-1.5 rounded-[5px] text-[13px] font-medium transition-colors ${
-                  activeTable === t
-                    ? "bg-[#ede9ff] text-[#4231d0]"
-                    : "text-[#6b6b80] hover:bg-[#eeeeef] hover:text-[#0d0d1a]"
-                }`}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-          <div className="p-2 border-t border-[#e8e8f0]">
-            <button className="flex items-center gap-1.5 w-full px-2.5 py-1.5 rounded-[5px] text-[12px] font-medium text-[#6b6b80] hover:bg-[#eeeeef] hover:text-[#0d0d1a] transition-colors">
-              <Plus size={13} /> New table
-            </button>
-          </div>
+    <div className="flex flex-col gap-4" style={{ height: "calc(100vh - 180px)" }}>
+      <div className="flex items-center justify-between">
+        <h1 className="text-[18px] font-extrabold tracking-[-0.02em] text-[#0d0d1a]">SQL Editor</h1>
+        <button onClick={run} disabled={running || !sql.trim()}
+          className="bg-[#8BB8D8] text-white text-[12px] font-semibold px-5 py-2 rounded-[7px] hover:bg-[#6aa0c4] transition-colors disabled:opacity-60 flex items-center gap-2">
+          {running ? "Running..." : "Run"}
+        </button>
+      </div>
+      <div className="bg-white border border-[#e8e8f0] rounded-[12px] overflow-hidden">
+        <div className="px-4 py-2 border-b border-[#e8e8f0] flex items-center gap-2">
+          <span className="text-[10.5px] font-semibold text-[#9494a8] uppercase tracking-wide">Query</span>
+          <span className="text-[10px] text-[#c0c0d0]">Ctrl+Enter to run</span>
         </div>
-
-        {/* Table content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Toolbar */}
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-[#e8e8f0] bg-white">
-            <div className="flex items-center gap-2 flex-1">
-              <div className="flex items-center gap-1.5 px-2.5 py-1.5 border border-[#e8e8f0] rounded-[5px] bg-white text-[12px] text-[#9494a8] w-56">
-                <Search size={12} />
-                <span>Filter rows...</span>
-              </div>
-              <button className="flex items-center gap-1.5 px-2.5 py-1.5 border border-[#e8e8f0] rounded-[5px] bg-white text-[12px] text-[#6b6b80] hover:border-[#d0d0e0] hover:text-[#0d0d1a] transition-colors">
-                <Filter size={12} /> Filter
-              </button>
-              <button className="flex items-center gap-1.5 px-2.5 py-1.5 border border-[#e8e8f0] rounded-[5px] bg-white text-[12px] text-[#6b6b80] hover:border-[#d0d0e0] hover:text-[#0d0d1a] transition-colors">
-                <ChevronDown size={12} /> Sort
-              </button>
-            </div>
-            <button className="p-1.5 rounded-[5px] text-[#9494a8] hover:bg-[#f3f3f8] hover:text-[#0d0d1a] transition-colors">
-              <RefreshCw size={13} />
-            </button>
-            <button className="flex items-center gap-1.5 bg-[#4231d0] text-white text-[12px] font-semibold px-3 py-1.5 rounded-[5px] hover:bg-[#3520b8] transition-colors">
-              <Plus size={13} /> Insert row
-            </button>
+        <textarea value={sql} onChange={e => setSql(e.target.value)}
+          onKeyDown={e => { if (e.ctrlKey && e.key === "Enter") run(); }}
+          rows={6} spellCheck={false}
+          className="w-full px-4 py-3 text-[12.5px] font-mono text-[#0d0d1a] bg-[#fafafa] resize-none focus:outline-none" />
+      </div>
+      <div className="flex-1 bg-white border border-[#e8e8f0] rounded-[12px] overflow-hidden flex flex-col">
+        <div className="px-4 py-2.5 border-b border-[#e8e8f0] flex items-center gap-3">
+          <span className="text-[11.5px] font-semibold text-[#0d0d1a]">Results</span>
+          {time !== null && <span className="text-[11px] text-[#9494a8]">{rows.length} rows - {time}ms</span>}
+        </div>
+        {error ? (
+          <div className="px-4 py-3 text-[12px] font-mono text-red-600 bg-red-50">{error}</div>
+        ) : rows.length === 0 ? (
+          <div className="flex items-center justify-center flex-1 text-[12.5px] text-[#9494a8]">
+            {running ? "Running..." : "Run a query to see results."}
           </div>
-
-          {/* Data table */}
-          <div className="flex-1 overflow-auto">
-            <table className="w-full border-collapse text-[13px]">
-              <thead className="sticky top-0 z-10">
-                <tr className="bg-[#f8f8fc] border-b border-[#e8e8f0]">
-                  <th className="w-10 px-3 py-2.5 border-r border-[#e8e8f0]">
-                    <input type="checkbox" className="rounded" />
-                  </th>
-                  {COLUMNS.map((col) => (
-                    <th key={col} className="text-left px-4 py-2.5 font-semibold text-[11px] uppercase tracking-wider text-[#9494a8] border-r border-[#e8e8f0] whitespace-nowrap">
-                      {col}
-                    </th>
-                  ))}
-                  <th className="w-10" />
-                </tr>
+        ) : (
+          <div className="overflow-auto flex-1">
+            <table className="w-full text-[12px]">
+              <thead className="sticky top-0 bg-[#fafafa] border-b border-[#e8e8f0]">
+                <tr>{columns.map(col => <th key={col} className="text-left px-4 py-2 font-semibold text-[#9494a8] whitespace-nowrap">{col}</th>)}</tr>
               </thead>
               <tbody>
-                {ROWS.map((row, i) => (
-                  <tr key={row.id} className={`border-b border-[#e8e8f0] hover:bg-[#f8f8fc] transition-colors group ${i % 2 === 0 ? "bg-white" : "bg-white"}`}>
-                    <td className="px-3 py-2.5 border-r border-[#e8e8f0]">
-                      <input type="checkbox" className="rounded opacity-0 group-hover:opacity-100" />
-                    </td>
-                    {COLUMNS.map((col) => (
-                      <td key={col} className="px-4 py-2.5 border-r border-[#e8e8f0] font-mono text-[12px] text-[#0d0d1a] whitespace-nowrap">
-                        {col === "status" ? (
-                          <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                            (row as Record<string,string>)[col] === "active"
-                              ? "bg-[#f0fdf4] text-[#16a34a]"
-                              : "bg-[#f3f3f8] text-[#9494a8]"
-                          }`}>
-                            {(row as Record<string,string>)[col]}
-                          </span>
-                        ) : (
-                          (row as Record<string,string>)[col]
-                        )}
+                {rows.map((row, i) => (
+                  <tr key={i} className="border-b border-[#f0f0f8] hover:bg-[#fafafa]">
+                    {columns.map(col => (
+                      <td key={col} className="px-4 py-2 font-mono text-[#0d0d1a] whitespace-nowrap max-w-[240px] truncate">
+                        {row[col] === null ? <span className="text-[#c0c0d0]">null</span> : String(row[col])}
                       </td>
                     ))}
-                    <td className="px-2 py-2.5">
-                      <button className="p-1 rounded text-[#9494a8] hover:text-[#0d0d1a] opacity-0 group-hover:opacity-100 transition-all">
-                        <MoreHorizontal size={14} />
-                      </button>
-                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-
-          {/* Footer */}
-          <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#e8e8f0] bg-[#f8f8fc]">
-            <p className="text-[12px] text-[#9494a8]">Showing {ROWS.length} of 1,284 rows</p>
-            <div className="flex items-center gap-2">
-              <button className="text-[12px] text-[#6b6b80] px-2.5 py-1 border border-[#e8e8f0] rounded-[4px] hover:border-[#d0d0e0] bg-white transition-colors">Previous</button>
-              <button className="text-[12px] text-[#6b6b80] px-2.5 py-1 border border-[#e8e8f0] rounded-[4px] hover:border-[#d0d0e0] bg-white transition-colors">Next</button>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -1,75 +1,81 @@
-import { Topbar } from "@/components/layout/topbar";
-import { Plus, Key, Link } from "lucide-react";
+﻿"use client";
+import { useEffect, useState } from "react";
 
-const TABLES = [
-  { name: "users", rows: "1,284", size: "3.2 MB", rls: true, cols: 8 },
-  { name: "products", rows: "342", size: "980 KB", rls: true, cols: 12 },
-  { name: "orders", rows: "5,841", size: "8.1 MB", rls: true, cols: 10 },
-  { name: "categories", rows: "24", size: "12 KB", rls: false, cols: 5 },
-  { name: "reviews", rows: "891", size: "1.4 MB", rls: true, cols: 7 },
-  { name: "sessions", rows: "428", size: "640 KB", rls: true, cols: 6 },
-];
+type TableRow = Record<string, string | number | boolean | null>;
+const TABLES = ["user", "session", "account", "verification", "project", "api_key"];
 
-export default function DatabasePage() {
+export default function DatabasePage({ params }: { params: { id: string } }) {
+  const [activeTable, setActiveTable] = useState("user");
+  const [rows, setRows] = useState<TableRow[]>([]);
+  const [columns, setColumns] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch('/api/projects/' + params.id + '/query', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sql: 'SELECT * FROM "' + activeTable + '" LIMIT 50' }),
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d.rows?.length) { setColumns(Object.keys(d.rows[0])); setRows(d.rows); }
+        else { setColumns([]); setRows([]); }
+      })
+      .catch(() => { setColumns([]); setRows([]); })
+      .finally(() => setLoading(false));
+  }, [activeTable, params.id]);
+
   return (
-    <div className="flex flex-col h-full">
-      <Topbar title="Database" subtitle="Tables, foreign keys, indexes, and triggers" />
-      <div className="flex-1 overflow-auto px-6 py-6">
-        {/* Actions */}
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex gap-3">
-            {["Tables", "Foreign keys", "Indexes", "Triggers", "Extensions"].map((tab, i) => (
-              <button key={tab} className={`text-[13px] font-medium pb-2 border-b-2 transition-colors ${
-                i === 0 ? "text-[#4231d0] border-[#4231d0]" : "text-[#6b6b80] border-transparent hover:text-[#0d0d1a]"
-              }`}>
-                {tab}
-              </button>
-            ))}
-          </div>
-          <button className="flex items-center gap-1.5 bg-[#4231d0] text-white text-[12px] font-semibold px-3 py-1.5 rounded-[6px] hover:bg-[#3520b8] transition-colors">
-            <Plus size={13} /> New table
-          </button>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-[18px] font-extrabold tracking-[-0.02em] text-[#0d0d1a]">Table Editor</h1>
+        <span className="text-[11.5px] text-[#9494a8]">Postgres - Neon - eu-west-2</span>
+      </div>
+      <div className="flex gap-4" style={{ height: "calc(100vh - 220px)", minHeight: "400px" }}>
+        <div className="w-44 flex-shrink-0 bg-white border border-[#e8e8f0] rounded-[12px] p-2 overflow-y-auto">
+          <p className="text-[10px] font-bold text-[#9494a8] uppercase tracking-wide px-2 py-1.5">Tables</p>
+          {TABLES.map(t => (
+            <button key={t} onClick={() => setActiveTable(t)}
+              className={"w-full text-left px-2.5 py-1.5 rounded-[7px] text-[12.5px] transition-colors " + (activeTable === t ? "bg-[#EEF5FB] text-[#5890B8] font-semibold" : "text-[#6b6b80] hover:bg-[#fafafa]")}>
+              {t}
+            </button>
+          ))}
         </div>
-
-        <div className="border border-[#e8e8f0] rounded-[8px] overflow-hidden bg-white">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-[#f8f8fc] border-b border-[#e8e8f0]">
-                {["Table name", "Rows", "Size", "Columns", "RLS", ""].map((h) => (
-                  <th key={h} className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#9494a8]">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {TABLES.map((t) => (
-                <tr key={t.name} className="border-b border-[#e8e8f0] last:border-0 hover:bg-[#f8f8fc] transition-colors group cursor-pointer">
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded bg-[#ede9ff] flex items-center justify-center">
-                        <Key size={10} className="text-[#4231d0]" />
-                      </div>
-                      <span className="font-mono text-[13px] font-semibold text-[#0d0d1a]">{t.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-[13px] text-[#6b6b80]">{t.rows}</td>
-                  <td className="px-5 py-3 text-[13px] text-[#6b6b80]">{t.size}</td>
-                  <td className="px-5 py-3 text-[13px] text-[#6b6b80]">{t.cols} cols</td>
-                  <td className="px-5 py-3">
-                    {t.rls ? (
-                      <span className="text-[11px] font-semibold bg-[#f0fdf4] text-[#16a34a] px-2 py-0.5 rounded-full">Enabled</span>
-                    ) : (
-                      <span className="text-[11px] font-semibold bg-[#fef2f2] text-[#dc2626] px-2 py-0.5 rounded-full">Disabled</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3">
-                    <button className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-[12px] text-[#4231d0] transition-all">
-                      <Link size={12} /> Open
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex-1 bg-white border border-[#e8e8f0] rounded-[12px] overflow-hidden flex flex-col">
+          <div className="px-4 py-3 border-b border-[#e8e8f0] flex items-center justify-between">
+            <span className="text-[12.5px] font-semibold text-[#0d0d1a] font-mono">{activeTable}</span>
+            <span className="text-[11.5px] text-[#9494a8]">{rows.length} rows</span>
+          </div>
+          {loading ? (
+            <div className="flex items-center justify-center flex-1">
+              <div className="w-5 h-5 border-2 border-[#8BB8D8] border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : columns.length === 0 ? (
+            <div className="flex items-center justify-center flex-1 flex-col gap-2">
+              <p className="text-[13px] font-semibold text-[#0d0d1a]">No rows yet</p>
+              <p className="text-[12px] text-[#9494a8]">This table is empty.</p>
+            </div>
+          ) : (
+            <div className="overflow-auto flex-1">
+              <table className="w-full text-[12px]">
+                <thead className="sticky top-0 bg-[#fafafa] border-b border-[#e8e8f0]">
+                  <tr>{columns.map(col => <th key={col} className="text-left px-4 py-2 font-semibold text-[#9494a8] whitespace-nowrap">{col}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, i) => (
+                    <tr key={i} className="border-b border-[#f0f0f8] hover:bg-[#fafafa]">
+                      {columns.map(col => (
+                        <td key={col} className="px-4 py-2 text-[#0d0d1a] font-mono whitespace-nowrap max-w-[200px] truncate">
+                          {row[col] === null ? <span className="text-[#c0c0d0]">null</span> : String(row[col])}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

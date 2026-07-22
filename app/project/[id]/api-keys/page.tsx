@@ -1,93 +1,67 @@
-"use client";
-import { useState } from "react";
-import { Topbar } from "@/components/layout/topbar";
-import { Copy, Eye, EyeOff, RefreshCw, Plus } from "lucide-react";
+﻿"use client";
+import { useEffect, useState } from "react";
 
-export default function ApiKeysPage() {
-  const [showService, setShowService] = useState(false);
+type ApiKey = { id: string; name: string; key: string; type: string; createdAt: string; };
+
+export default function ApiKeysPage({ params }: { params: { id: string } }) {
+  const [keys, setKeys] = useState<ApiKey[]>([]);
+  const [copied, setCopied] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/projects/' + params.id)
+      .then(r => r.json())
+      .then(d => { setKeys(d.apiKeys || []); setLoading(false); });
+  }, [params.id]);
+
+  function copy(val: string, id: string) {
+    navigator.clipboard.writeText(val);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  }
+
+  const meta: Record<string, { desc: string; badge: string }> = {
+    anon: { desc: "Safe for client-side code. Respects Row Level Security.", badge: "bg-[#EEF5FB] text-[#5890B8]" },
+    service: { desc: "Full access. Server-side only. Never expose to clients.", badge: "bg-red-50 text-red-600" },
+  };
 
   return (
-    <div className="flex flex-col h-full">
-      <Topbar title="API Keys" subtitle="Manage your project's API credentials" />
-      <div className="flex-1 overflow-auto px-6 py-6">
-        {/* Project URL */}
-        <div className="border border-[#e8e8f0] rounded-[8px] p-5 mb-4 bg-white">
-          <p className="text-[13px] font-semibold text-[#0d0d1a] mb-1">Project URL</p>
-          <p className="text-[12px] text-[#9494a8] mb-3">Use this as your BUDRUUM_URL env variable in your project.</p>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 px-3 py-2 bg-[#f8f8fc] border border-[#e8e8f0] rounded-[6px] font-mono text-[12px] text-[#0d0d1a]">
-              https://proj-dehadza.budruum.co
-            </div>
-            <button className="flex items-center gap-1.5 px-3 py-2 border border-[#e8e8f0] rounded-[6px] text-[12px] font-medium text-[#6b6b80] hover:border-[#d0d0e0] hover:text-[#0d0d1a] bg-white transition-colors">
-              <Copy size={12} /> Copy
-            </button>
-          </div>
+    <div className="space-y-5 max-w-2xl">
+      <div>
+        <h1 className="text-[18px] font-extrabold tracking-[-0.02em] text-[#0d0d1a]">API Keys</h1>
+        <p className="text-[12.5px] text-[#9494a8] mt-0.5">Use these keys to authenticate requests to your project.</p>
+      </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-16">
+          <div className="w-5 h-5 border-2 border-[#8BB8D8] border-t-transparent rounded-full animate-spin" />
         </div>
-
-        {/* Anon key */}
-        <div className="border border-[#e8e8f0] rounded-[8px] p-5 mb-4 bg-white">
-          <div className="flex items-start justify-between mb-1">
-            <p className="text-[13px] font-semibold text-[#0d0d1a]">Anon / Public key</p>
-            <span className="text-[11px] font-semibold bg-[#f0fdf4] text-[#16a34a] px-2 py-0.5 rounded-full">Safe to expose</span>
-          </div>
-          <p className="text-[12px] text-[#9494a8] mb-3">Use for client-side calls. Row Level Security (RLS) is enforced.</p>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 px-3 py-2 bg-[#f8f8fc] border border-[#e8e8f0] rounded-[6px] font-mono text-[12px] text-[#0d0d1a] overflow-hidden text-ellipsis whitespace-nowrap">
-              eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJidWRydXVtIiwicm9sZSI6ImFub24ifQ.xK9mP2...
-            </div>
-            <button className="flex items-center gap-1.5 px-3 py-2 border border-[#e8e8f0] rounded-[6px] text-[12px] font-medium text-[#6b6b80] hover:border-[#d0d0e0] hover:text-[#0d0d1a] bg-white transition-colors">
-              <Copy size={12} /> Copy
-            </button>
-          </div>
+      ) : (
+        <div className="space-y-4">
+          {keys.map(k => {
+            const m = meta[k.type] || { desc: "", badge: "bg-[#EEF5FB] text-[#5890B8]" };
+            return (
+              <div key={k.id} className="bg-white border border-[#e8e8f0] rounded-[14px] p-5">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-[13px] font-bold text-[#0d0d1a] capitalize">{k.name}</h3>
+                  <span className={"text-[10px] font-bold px-2 py-0.5 rounded-full " + m.badge}>{k.type}</span>
+                </div>
+                <p className="text-[11.5px] text-[#9494a8] mb-3">{m.desc}</p>
+                <div className="flex items-center gap-2 bg-[#fafafa] border border-[#e8e8f0] rounded-[8px] px-3 py-2.5">
+                  <code className="text-[11.5px] font-mono text-[#0d0d1a] flex-1 truncate">{k.key}</code>
+                  <button onClick={() => copy(k.key, k.id)}
+                    className="text-[11px] font-semibold text-[#8BB8D8] hover:text-[#5890B8] transition-colors flex-shrink-0">
+                    {copied === k.id ? "Copied!" : "Copy"}
+                  </button>
+                </div>
+                <p className="text-[10.5px] text-[#c0c0d0] mt-2">Created {new Date(k.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
+              </div>
+            );
+          })}
         </div>
-
-        {/* Service key */}
-        <div className="border border-[#fecaca] rounded-[8px] p-5 mb-4 bg-white">
-          <div className="flex items-start justify-between mb-1">
-            <p className="text-[13px] font-semibold text-[#0d0d1a]">Service role key</p>
-            <span className="text-[11px] font-semibold bg-[#fef2f2] text-[#dc2626] px-2 py-0.5 rounded-full">Server only — secret</span>
-          </div>
-          <p className="text-[12px] text-[#9494a8] mb-3">Bypasses RLS. Never expose in client-side code. Use in server-side environments only.</p>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 px-3 py-2 bg-[#fef2f2] border border-[#fecaca] rounded-[6px] font-mono text-[12px] text-[#0d0d1a] overflow-hidden text-ellipsis whitespace-nowrap">
-              {showService ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJidWRydXVtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSJ9.zYqR8..." : "••••••••••••••••••••••••••••••••••••••••••••••••••••••"}
-            </div>
-            <button onClick={() => setShowService(!showService)} className="flex items-center gap-1.5 px-3 py-2 border border-[#fecaca] rounded-[6px] text-[12px] font-medium text-[#dc2626] hover:bg-[#fef2f2] bg-white transition-colors">
-              {showService ? <EyeOff size={12} /> : <Eye size={12} />}
-              {showService ? "Hide" : "Show"}
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-2 border border-[#e8e8f0] rounded-[6px] text-[12px] font-medium text-[#6b6b80] hover:border-[#d0d0e0] hover:text-[#0d0d1a] bg-white transition-colors">
-              <Copy size={12} /> Copy
-            </button>
-          </div>
-        </div>
-
-        {/* JWT secret */}
-        <div className="border border-[#e8e8f0] rounded-[8px] p-5 mb-6 bg-white">
-          <div className="flex items-start justify-between mb-1">
-            <p className="text-[13px] font-semibold text-[#0d0d1a]">JWT secret</p>
-            <span className="text-[11px] font-semibold bg-[#fef2f2] text-[#dc2626] px-2 py-0.5 rounded-full">Secret</span>
-          </div>
-          <p className="text-[12px] text-[#9494a8] mb-3">Used to sign JWTs. Rotate this to invalidate all existing sessions.</p>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 px-3 py-2 bg-[#f8f8fc] border border-[#e8e8f0] rounded-[6px] font-mono text-[12px] text-[#9494a8]">
-              ••••••••••••••••••••••••••••••••
-            </div>
-            <button className="flex items-center gap-1.5 px-3 py-2 border border-[#e8e8f0] rounded-[6px] text-[12px] font-medium text-[#dc2626] hover:border-[#fecaca] bg-white transition-colors">
-              <RefreshCw size={12} /> Rotate
-            </button>
-          </div>
-        </div>
-
-        {/* Vercel env injection */}
-        <div className="border border-[#e8e8f0] rounded-[8px] p-5 bg-[#f8f8fc]">
-          <p className="text-[13px] font-semibold text-[#0d0d1a] mb-1">Vercel Integration</p>
-          <p className="text-[12px] text-[#9494a8] mb-4">Connect this project to Vercel and all env vars will be auto-injected into your deployments.</p>
-          <button className="flex items-center gap-2 bg-[#0d0d1a] text-white text-[12px] font-semibold px-4 py-2 rounded-[6px] hover:bg-[#252535] transition-colors">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 19.5h20L12 2z"/></svg>
-            Connect to Vercel
-          </button>
-        </div>
+      )}
+      <div className="bg-[#EEF5FB] border border-[#C5DCF0] rounded-[12px] p-4">
+        <p className="text-[12px] font-semibold text-[#5890B8] mb-1">How to use</p>
+        <p className="text-[11.5px] text-[#6b6b80] leading-relaxed">Pass the key as an Authorization header: Bearer YOUR_KEY. Use the anon key in your frontend, service key in server-only code.</p>
       </div>
     </div>
   );
