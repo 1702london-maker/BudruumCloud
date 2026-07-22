@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { project } from "@/lib/schema";
 import { isSafeIdentifier } from "@/lib/api-auth";
 import { ensureProjectDatabase, getProjectSql, listProjectColumns, qualifyTable } from "@/lib/project-db";
+import { recordProjectLog, requestIp } from "@/lib/logging";
 
 type Params = { params: Promise<{ id: string; table: string }> };
 type JsonValue = string | number | boolean | null;
@@ -36,6 +37,7 @@ function buildWhere(match: JsonRecord, offset = 1) {
 }
 
 export async function GET(req: NextRequest, { params }: Params) {
+  const started = Date.now();
   const { id, table } = await params;
   if (!isSafeIdentifier(table)) return NextResponse.json({ error: "Invalid table name" }, { status: 400 });
 
@@ -47,11 +49,13 @@ export async function GET(req: NextRequest, { params }: Params) {
   const limit = Math.min(Number(req.nextUrl.searchParams.get("limit") || 100), 500);
   const rows = await sql.query(`SELECT * FROM ${qualifyTable(id, table)} LIMIT $1`, [limit]);
   const columns = await listProjectColumns(id, table, authResult.project.dbUrl);
+  await recordProjectLog({ projectId: id, service: "database", method: "GET", path: req.nextUrl.pathname, status: 200, durationMs: Date.now() - started, ipAddress: requestIp(req), message: `Browse ${table}` });
 
   return NextResponse.json({ rows, columns });
 }
 
 export async function POST(req: NextRequest, { params }: Params) {
+  const started = Date.now();
   const { id, table } = await params;
   if (!isSafeIdentifier(table)) return NextResponse.json({ error: "Invalid table name" }, { status: 400 });
 
@@ -75,11 +79,13 @@ export async function POST(req: NextRequest, { params }: Params) {
     `INSERT INTO ${qualifyTable(id, table)} (${columnList}) VALUES (${valueSlots}) RETURNING *`,
     values
   );
+  await recordProjectLog({ projectId: id, service: "database", method: "POST", path: req.nextUrl.pathname, status: 201, durationMs: Date.now() - started, ipAddress: requestIp(req), message: `Insert ${table}` });
 
   return NextResponse.json({ rows }, { status: 201 });
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {
+  const started = Date.now();
   const { id, table } = await params;
   if (!isSafeIdentifier(table)) return NextResponse.json({ error: "Invalid table name" }, { status: 400 });
 
@@ -107,11 +113,13 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     `UPDATE ${qualifyTable(id, table)} SET ${setClause} WHERE ${where.clause} RETURNING *`,
     values
   );
+  await recordProjectLog({ projectId: id, service: "database", method: "PATCH", path: req.nextUrl.pathname, status: 200, durationMs: Date.now() - started, ipAddress: requestIp(req), message: `Update ${table}` });
 
   return NextResponse.json({ rows });
 }
 
 export async function DELETE(req: NextRequest, { params }: Params) {
+  const started = Date.now();
   const { id, table } = await params;
   if (!isSafeIdentifier(table)) return NextResponse.json({ error: "Invalid table name" }, { status: 400 });
 
@@ -132,6 +140,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     `DELETE FROM ${qualifyTable(id, table)} WHERE ${where.clause} RETURNING *`,
     where.values
   );
+  await recordProjectLog({ projectId: id, service: "database", method: "DELETE", path: req.nextUrl.pathname, status: 200, durationMs: Date.now() - started, ipAddress: requestIp(req), message: `Delete ${table}` });
 
   return NextResponse.json({ rows });
 }

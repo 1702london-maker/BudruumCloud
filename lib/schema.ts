@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { integer, pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -70,4 +70,17 @@ export const apiKey = pgTable("api_key", {
   type: text("type").notNull().default("anon"), // anon | service
   createdAt: timestamp("created_at").notNull(),
   lastUsedAt: timestamp("last_used_at"),
+});
+
+export const projectLog = pgTable("project_log", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull().references(() => project.id, { onDelete: "cascade" }),
+  service: text("service").notNull(),
+  method: text("method").notNull(),
+  path: text("path").notNull(),
+  status: integer("status").notNull(),
+  durationMs: integer("duration_ms").notNull(),
+  ipAddress: text("ip_address"),
+  message: text("message"),
+  createdAt: timestamp("created_at").notNull(),
 });

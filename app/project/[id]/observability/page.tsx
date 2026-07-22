@@ -1,19 +1,45 @@
 "use client";
-import { use } from "react";
+
+import { use, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Activity, BarChart3, Clock, Database, Filter, Globe2, HardDrive, Shield, Zap } from "lucide-react";
 
-const SERVICE_ROWS = [
-  { name: "API Gateway", requests: 0, latency: "0 ms", errors: 0, icon: Globe2 },
-  { name: "Database", requests: 0, latency: "0 ms", errors: 0, icon: Database },
-  { name: "Auth", requests: 0, latency: "0 ms", errors: 0, icon: Shield },
-  { name: "Storage", requests: 0, latency: "0 ms", errors: 0, icon: HardDrive },
-  { name: "Edge Functions", requests: 0, latency: "0 ms", errors: 0, icon: Zap },
-  { name: "Realtime", requests: 0, latency: "0 ms", errors: 0, icon: Activity },
+type SummaryRow = { service: string; requests: number; latency: number; errors: number };
+
+const SERVICES = [
+  { key: "api", name: "API Gateway", icon: Globe2 },
+  { key: "database", name: "Database", icon: Database },
+  { key: "auth", name: "Auth", icon: Shield },
+  { key: "storage", name: "Storage", icon: HardDrive },
+  { key: "functions", name: "Edge Functions", icon: Zap },
+  { key: "realtime", name: "Realtime", icon: Activity },
 ];
 
 export default function ObservabilityPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const [summary, setSummary] = useState<SummaryRow[]>([]);
+
+  useEffect(() => {
+    fetch(`/api/projects/${id}/logs?limit=1`)
+      .then((response) => response.json())
+      .then((data) => setSummary(data.summary || []))
+      .catch(() => setSummary([]));
+  }, [id]);
+
+  const rows = useMemo(() => SERVICES.map((service) => {
+    const data = summary.find((item) => item.service === service.key);
+    return {
+      ...service,
+      requests: data?.requests || 0,
+      latency: `${data?.latency || 0} ms`,
+      errors: data?.errors || 0,
+    };
+  }), [summary]);
+
+  const totalRequests = rows.reduce((sum, row) => sum + row.requests, 0);
+  const totalErrors = rows.reduce((sum, row) => sum + row.errors, 0);
+  const successRate = totalRequests ? (((totalRequests - totalErrors) / totalRequests) * 100).toFixed(1) : "0.0";
+  const avgLatency = totalRequests ? Math.round(rows.reduce((sum, row) => sum + (parseInt(row.latency) * row.requests), 0) / totalRequests) : 0;
 
   return (
     <div className="grid grid-cols-[224px_1fr] gap-0 min-h-[calc(100vh-56px)]">
@@ -28,7 +54,7 @@ export default function ObservabilityPage({ params }: { params: Promise<{ id: st
         ))}
         <div className="h-px bg-[#e8e8f0] my-4" />
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9494a8] mb-2">Product</p>
-        {SERVICE_ROWS.slice(1).map((item) => (
+        {SERVICES.slice(1).map((item) => (
           <Link key={item.name} href={`/project/${id}/observability/${item.name === "Edge Functions" ? "functions" : item.name.toLowerCase()}`} className="flex items-center w-full h-8 rounded-[7px] px-2.5 text-left text-[12.5px] text-[#6b6b80] hover:bg-white">{item.name}</Link>
         ))}
       </aside>
@@ -42,10 +68,10 @@ export default function ObservabilityPage({ params }: { params: Promise<{ id: st
 
         <section className="grid grid-cols-4 gap-4">
           {[
-            { label: "Total requests", value: "0" },
-            { label: "Success rate", value: "0.0%" },
-            { label: "P95 latency", value: "0 ms" },
-            { label: "Error rate", value: "0.0%" },
+            { label: "Total requests", value: String(totalRequests) },
+            { label: "Success rate", value: `${successRate}%` },
+            { label: "Avg latency", value: `${avgLatency} ms` },
+            { label: "Error rate", value: totalRequests ? `${((totalErrors / totalRequests) * 100).toFixed(1)}%` : "0.0%" },
           ].map((metric) => (
             <div key={metric.label} className="border border-[#e8e8f0] rounded-[8px] p-4">
               <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9494a8]">{metric.label}</p>
@@ -60,7 +86,7 @@ export default function ObservabilityPage({ params }: { params: Promise<{ id: st
             <BarChart3 size={16} className="text-[#9494a8]" />
           </div>
           <div className="divide-y divide-[#f0f0f6]">
-            {SERVICE_ROWS.map(({ name, requests, latency, errors, icon: Icon }) => (
+            {rows.map(({ name, requests, latency, errors, icon: Icon }) => (
               <div key={name} className="grid grid-cols-[1fr_120px_120px_120px] items-center px-4 py-3 text-[12.5px]">
                 <div className="flex items-center gap-2 font-semibold"><Icon size={15} className="text-[#5890B8]" /> {name}</div>
                 <div className="text-[#6b6b80]">{requests} requests</div>
@@ -71,10 +97,10 @@ export default function ObservabilityPage({ params }: { params: Promise<{ id: st
           </div>
         </section>
 
-        <section className="border border-dashed border-[#dfe1ea] rounded-[8px] min-h-[230px] flex flex-col items-center justify-center">
+        <section className="border border-dashed border-[#dfe1ea] rounded-[8px] min-h-[180px] flex flex-col items-center justify-center">
           <Globe2 size={28} className="text-[#8BB8D8] mb-3" />
-          <h3 className="text-[15px] font-bold">Traffic map will appear here</h3>
-          <p className="text-[12.5px] text-[#6b6b80] mt-1">Live request analytics will populate after Budruum starts collecting gateway events.</p>
+          <h3 className="text-[15px] font-bold">Gateway events are being collected</h3>
+          <p className="text-[12.5px] text-[#6b6b80] mt-1">Use your deployed app or the dashboard tools, then refresh Logs for raw events.</p>
         </section>
       </main>
     </div>

@@ -5,11 +5,13 @@ import { project } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
 import { headers } from "next/headers";
 import { deleteProjectObject } from "@/lib/storage";
+import { recordProjectLog, requestIp } from "@/lib/logging";
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string; key: string }> }
 ) {
+  const started = Date.now();
   const { id, key } = await params;
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -20,9 +22,11 @@ export async function DELETE(
 
   try {
     await deleteProjectObject(id, decodeURIComponent(key));
+    await recordProjectLog({ projectId: id, service: "storage", method: "DELETE", path: req.nextUrl.pathname, status: 200, durationMs: Date.now() - started, ipAddress: requestIp(req), message: `Delete ${decodeURIComponent(key)}` });
     return NextResponse.json({ ok: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Delete failed";
+    await recordProjectLog({ projectId: id, service: "storage", method: "DELETE", path: req.nextUrl.pathname, status: 500, durationMs: Date.now() - started, ipAddress: requestIp(req), message });
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

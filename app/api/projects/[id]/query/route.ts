@@ -5,6 +5,7 @@ import { project } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
 import { headers } from "next/headers";
 import { ensureProjectDatabase, getProjectSchemaName, getProjectSql, quoteIdent } from "@/lib/project-db";
+import { recordProjectLog, requestIp } from "@/lib/logging";
 
 function splitSqlStatements(input: string) {
   const statements: string[] = [];
@@ -59,6 +60,7 @@ function splitSqlStatements(input: string) {
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const started = Date.now();
   const { id } = await params;
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -85,9 +87,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       ...statements.map((statement) => txn`${txn.unsafe(statement)}`),
     ]);
     const rows = results.at(-1) || [];
+    await recordProjectLog({ projectId: id, service: "database", method: "POST", path: req.nextUrl.pathname, status: 200, durationMs: Date.now() - started, ipAddress: requestIp(req), message: statements[0]?.slice(0, 180) || "SQL query" });
     return NextResponse.json({ rows, results: results.slice(1) });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Query failed";
+    await recordProjectLog({ projectId: id, service: "database", method: "POST", path: req.nextUrl.pathname, status: 400, durationMs: Date.now() - started, ipAddress: requestIp(req), message: msg });
     return NextResponse.json({ error: msg }, { status: 400 });
   }
 }

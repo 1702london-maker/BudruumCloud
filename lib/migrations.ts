@@ -63,6 +63,18 @@ export const initialSchemaSql = [
     "created_at" timestamp NOT NULL,
     "last_used_at" timestamp
   )`,
+  `CREATE TABLE IF NOT EXISTS "project_log" (
+    "id" text PRIMARY KEY NOT NULL,
+    "project_id" text NOT NULL REFERENCES "project"("id") ON DELETE cascade,
+    "service" text NOT NULL,
+    "method" text NOT NULL,
+    "path" text NOT NULL,
+    "status" integer NOT NULL,
+    "duration_ms" integer NOT NULL,
+    "ip_address" text,
+    "message" text,
+    "created_at" timestamp NOT NULL
+  )`,
   `ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "name" text`,
   `ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "email" text`,
   `ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "email_verified" boolean DEFAULT false NOT NULL`,
@@ -89,4 +101,12 @@ export const initialSchemaSql = [
   `ALTER TABLE "account" ADD COLUMN IF NOT EXISTS "password" text`,
   `ALTER TABLE "account" ADD COLUMN IF NOT EXISTS "created_at" timestamp DEFAULT now() NOT NULL`,
   `ALTER TABLE "account" ADD COLUMN IF NOT EXISTS "updated_at" timestamp DEFAULT now() NOT NULL`,
+  `ALTER TABLE "project_log" ADD COLUMN IF NOT EXISTS "service" text`,
+  `ALTER TABLE "project_log" ADD COLUMN IF NOT EXISTS "method" text`,
+  `ALTER TABLE "project_log" ADD COLUMN IF NOT EXISTS "path" text`,
+  `ALTER TABLE "project_log" ADD COLUMN IF NOT EXISTS "status" integer`,
+  `ALTER TABLE "project_log" ADD COLUMN IF NOT EXISTS "duration_ms" integer`,
+  `ALTER TABLE "project_log" ADD COLUMN IF NOT EXISTS "ip_address" text`,
+  `ALTER TABLE "project_log" ADD COLUMN IF NOT EXISTS "message" text`,
+  `ALTER TABLE "project_log" ADD COLUMN IF NOT EXISTS "created_at" timestamp DEFAULT now() NOT NULL`,
 ];

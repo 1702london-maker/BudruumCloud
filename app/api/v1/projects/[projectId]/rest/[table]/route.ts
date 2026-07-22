@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
 import { isSafeIdentifier, requireProjectApiKey } from "@/lib/api-auth";
 import { ensureProjectDatabase, qualifyTable } from "@/lib/project-db";
+import { recordProjectLog, requestIp } from "@/lib/logging";
 
 type Params = Promise<{ projectId: string; table: string }>;
 type JsonRecord = Record<string, string | number | boolean | null>;
@@ -28,6 +29,7 @@ function buildFilters(url: NextRequest["nextUrl"], startingIndex = 1) {
 }
 
 export async function GET(req: NextRequest, { params }: { params: Params }) {
+  const started = Date.now();
   const { projectId, table } = await params;
   const auth = await requireProjectApiKey(req, projectId);
 
@@ -70,14 +72,17 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
 
   try {
     const data = await sql.query(query, filterResult.values);
+    await recordProjectLog({ projectId, service: "api", method: "GET", path: req.nextUrl.pathname + req.nextUrl.search, status: 200, durationMs: Date.now() - started, ipAddress: requestIp(req) });
     return NextResponse.json({ data, error: null });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Query failed";
+    await recordProjectLog({ projectId, service: "api", method: "GET", path: req.nextUrl.pathname + req.nextUrl.search, status: 400, durationMs: Date.now() - started, ipAddress: requestIp(req), message });
     return NextResponse.json({ data: null, error: message }, { status: 400 });
   }
 }
 
 export async function POST(req: NextRequest, { params }: { params: Params }) {
+  const started = Date.now();
   const { projectId, table } = await params;
   const auth = await requireProjectApiKey(req, projectId);
 
@@ -128,14 +133,17 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
 
   try {
     const data = await sql.query(query, values);
+    await recordProjectLog({ projectId, service: "api", method: "POST", path: req.nextUrl.pathname, status: 201, durationMs: Date.now() - started, ipAddress: requestIp(req) });
     return NextResponse.json({ data, error: null }, { status: 201 });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Insert failed";
+    await recordProjectLog({ projectId, service: "api", method: "POST", path: req.nextUrl.pathname, status: 400, durationMs: Date.now() - started, ipAddress: requestIp(req), message });
     return NextResponse.json({ data: null, error: message }, { status: 400 });
   }
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Params }) {
+  const started = Date.now();
   const { projectId, table } = await params;
   const auth = await requireProjectApiKey(req, projectId);
 
@@ -173,14 +181,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
 
   try {
     const data = await sql.query(query, [...values, ...filterResult.values]);
+    await recordProjectLog({ projectId, service: "api", method: "PATCH", path: req.nextUrl.pathname + req.nextUrl.search, status: 200, durationMs: Date.now() - started, ipAddress: requestIp(req) });
     return NextResponse.json({ data, error: null });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Update failed";
+    await recordProjectLog({ projectId, service: "api", method: "PATCH", path: req.nextUrl.pathname + req.nextUrl.search, status: 400, durationMs: Date.now() - started, ipAddress: requestIp(req), message });
     return NextResponse.json({ data: null, error: message }, { status: 400 });
   }
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Params }) {
+  const started = Date.now();
   const { projectId, table } = await params;
   const auth = await requireProjectApiKey(req, projectId);
 
@@ -206,9 +217,11 @@ export async function DELETE(req: NextRequest, { params }: { params: Params }) {
 
   try {
     const data = await sql.query(query, filterResult.values);
+    await recordProjectLog({ projectId, service: "api", method: "DELETE", path: req.nextUrl.pathname + req.nextUrl.search, status: 200, durationMs: Date.now() - started, ipAddress: requestIp(req) });
     return NextResponse.json({ data, error: null });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Delete failed";
+    await recordProjectLog({ projectId, service: "api", method: "DELETE", path: req.nextUrl.pathname + req.nextUrl.search, status: 400, durationMs: Date.now() - started, ipAddress: requestIp(req), message });
     return NextResponse.json({ data: null, error: message }, { status: 400 });
   }
 }
