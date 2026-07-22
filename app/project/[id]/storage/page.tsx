@@ -1,5 +1,5 @@
 ﻿"use client";
-import { useEffect, useState, useRef } from "react";
+import { use, useCallback, useEffect, useState, useRef } from "react";
 
 type StorageFile = {
   key: string;
@@ -24,22 +24,23 @@ function fileIcon(key: string) {
   return "FILE";
 }
 
-export default function StoragePage({ params }: { params: { id: string } }) {
+export default function StoragePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [files, setFiles] = useState<StorageFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [prefix, setPrefix] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  function load() {
+  const load = useCallback(() => {
     setLoading(true);
-    fetch('/api/projects/' + params.id + '/storage?prefix=' + encodeURIComponent(prefix))
+    fetch('/api/projects/' + id + '/storage?prefix=' + encodeURIComponent(prefix))
       .then(r => r.json())
       .then(d => { setFiles(d.files || []); setLoading(false); })
       .catch(() => setLoading(false));
-  }
+  }, [id, prefix]);
 
-  useEffect(() => { load(); }, [params.id, prefix]);
+  useEffect(() => { load(); }, [load]);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -48,7 +49,7 @@ export default function StoragePage({ params }: { params: { id: string } }) {
     const form = new FormData();
     form.append("file", file);
     form.append("prefix", prefix);
-    await fetch('/api/projects/' + params.id + '/storage', { method: "POST", body: form });
+    await fetch('/api/projects/' + id + '/storage', { method: "POST", body: form });
     setUploading(false);
     load();
     if (fileRef.current) fileRef.current.value = "";
@@ -56,7 +57,7 @@ export default function StoragePage({ params }: { params: { id: string } }) {
 
   async function handleDelete(key: string) {
     if (!confirm("Delete " + key + "?")) return;
-    await fetch('/api/projects/' + params.id + '/storage/' + encodeURIComponent(key), { method: "DELETE" });
+    await fetch('/api/projects/' + id + '/storage/' + encodeURIComponent(key), { method: "DELETE" });
     load();
   }
 

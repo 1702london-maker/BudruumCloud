@@ -1,18 +1,19 @@
 ﻿"use client";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 
 type ApiKey = { id: string; name: string; key: string; type: string; createdAt: string; };
 
-export default function ApiKeysPage({ params }: { params: { id: string } }) {
+export default function ApiKeysPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [copied, setCopied] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/projects/' + params.id)
+    fetch('/api/projects/' + id)
       .then(r => r.json())
       .then(d => { setKeys(d.apiKeys || []); setLoading(false); });
-  }, [params.id]);
+  }, [id]);
 
   function copy(val: string, id: string) {
     navigator.clipboard.writeText(val);

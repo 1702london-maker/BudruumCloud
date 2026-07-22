@@ -4,6 +4,8 @@ import { db } from "./db";
 import * as schema from "./schema";
 
 export const auth = betterAuth({
+  secret: process.env.BETTER_AUTH_SECRET || "budruum-cloud-local-development-secret-change-me",
+  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {

@@ -3,8 +3,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Table2, Code2, HardDrive, Users, Key, ScrollText,
-  Settings, ChevronDown, Database, LayoutDashboard,
-  Zap, Bell, Search, Plus
+  Settings, ChevronDown, Database,
+  Zap, Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

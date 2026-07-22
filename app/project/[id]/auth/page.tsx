@@ -1,5 +1,5 @@
 ﻿"use client";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 
 type AuthUser = {
   id: string;
@@ -9,17 +9,18 @@ type AuthUser = {
   createdAt: string;
 };
 
-export default function AuthPage({ params }: { params: { id: string } }) {
+export default function AuthPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [users, setUsers] = useState<AuthUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch('/api/projects/' + params.id + '/auth-users')
+    fetch('/api/projects/' + id + '/auth-users')
       .then(r => r.json())
       .then(d => { setUsers(d.users || []); setLoading(false); })
       .catch(() => setLoading(false));
-  }, [params.id]);
+  }, [id]);
 
   const filtered = users.filter(u =>
     u.email.toLowerCase().includes(search.toLowerCase()) ||

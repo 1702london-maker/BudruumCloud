@@ -1,23 +1,24 @@
 ﻿"use client";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function ProjectSettingsPage({ params }: { params: { id: string } }) {
+export default function ProjectSettingsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const [project, setProject] = useState<{ name: string; region: string; plan: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [confirmName, setConfirmName] = useState("");
 
   useEffect(() => {
-    fetch('/api/projects/' + params.id)
+    fetch('/api/projects/' + id)
       .then(r => r.json())
       .then(d => setProject(d.project));
-  }, [params.id]);
+  }, [id]);
 
   async function handleDelete() {
     if (confirmName !== project?.name) return;
     setDeleting(true);
-    await fetch('/api/projects/' + params.id, { method: "DELETE" });
+    await fetch('/api/projects/' + id, { method: "DELETE" });
     router.push("/dashboard");
   }
 

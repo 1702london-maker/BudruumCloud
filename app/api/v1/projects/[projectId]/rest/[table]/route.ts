@@ -1,0 +1,53 @@
+import { NextRequest, NextResponse } from "next/server";
+import { neon } from "@neondatabase/serverless";
+import { isSafeIdentifier, requireProjectApiKey } from "@/lib/api-auth";
+
+type Params = Promise<{ projectId: string; table: string }>;
+
+export async function GET(req: NextRequest, { params }: { params: Params }) {
+  const { projectId, table } = await params;
+  const auth = await requireProjectApiKey(req, projectId);
+
+  if ("error" in auth) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  if (!isSafeIdentifier(table)) {
+    return NextResponse.json({ error: "Invalid table name" }, { status: 400 });
+  }
+
+  const url = req.nextUrl;
+  const select = url.searchParams.get("select") || "*";
+  const limit = Math.min(Number(url.searchParams.get("limit") || "100"), 500);
+  const filters = [...url.searchParams.entries()].filter(([key]) => key.startsWith("eq."));
+
+  if (select !== "*" && !select.split(",").every((column) => isSafeIdentifier(column.trim()))) {
+    return NextResponse.json({ error: "Invalid select columns" }, { status: 400 });
+  }
+
+  const whereClauses: string[] = [];
+  const values: string[] = [];
+
+  for (const [key, value] of filters) {
+    const column = key.slice(3);
+    if (!isSafeIdentifier(column)) {
+      return NextResponse.json({ error: `Invalid filter column: ${column}` }, { status: 400 });
+    }
+    values.push(value);
+    whereClauses.push(`"${column}" = $${values.length}`);
+  }
+
+  const sql = neon(auth.project.dbUrl || process.env.DATABASE_URL!);
+  const runQuery = sql as unknown as (query: string, params: string[]) => Promise<unknown>;
+  const columns = select === "*" ? "*" : select.split(",").map((column) => `"${column.trim()}"`).join(", ");
+  const where = whereClauses.length ? ` WHERE ${whereClauses.join(" AND ")}` : "";
+  const query = `SELECT ${columns} FROM "${table}"${where} LIMIT ${limit}`;
+
+  try {
+    const data = await runQuery(query, values);
+    return NextResponse.json({ data, error: null });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Query failed";
+    return NextResponse.json({ data: null, error: message }, { status: 400 });
+  }
+}

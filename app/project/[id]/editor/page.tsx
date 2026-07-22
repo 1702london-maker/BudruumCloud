@@ -1,9 +1,10 @@
 ﻿"use client";
-import { useState } from "react";
+import { use, useState } from "react";
 
 type QueryRow = Record<string, string | number | boolean | null>;
 
-export default function SQLEditorPage({ params }: { params: { id: string } }) {
+export default function SQLEditorPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [sql, setSql] = useState('SELECT * FROM "user" LIMIT 10;');
   const [rows, setRows] = useState<QueryRow[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
@@ -15,7 +16,7 @@ export default function SQLEditorPage({ params }: { params: { id: string } }) {
     setRunning(true); setError(""); setRows([]); setColumns([]);
     const start = performance.now();
     try {
-      const res = await fetch('/api/projects/' + params.id + '/query', {
+      const res = await fetch('/api/projects/' + id + '/query', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sql }),

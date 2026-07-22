@@ -2,13 +2,22 @@
   "name": "budruum-cloud",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio",
+    "sdk:build": "npm run build -w @budruum/client"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1092.0",
+    "@aws-sdk/s3-request-presigner": "^3.1092.0",
     "@neondatabase/serverless": "^1.1.0",
     "better-auth": "^1.6.24",
     "clsx": "^2.1.1",

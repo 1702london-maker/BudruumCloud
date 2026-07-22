@@ -1,10 +1,11 @@
 ﻿"use client";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 
 type TableRow = Record<string, string | number | boolean | null>;
 const TABLES = ["user", "session", "account", "verification", "project", "api_key"];
 
-export default function DatabasePage({ params }: { params: { id: string } }) {
+export default function DatabasePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [activeTable, setActiveTable] = useState("user");
   const [rows, setRows] = useState<TableRow[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
@@ -12,7 +13,7 @@ export default function DatabasePage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     setLoading(true);
-    fetch('/api/projects/' + params.id + '/query', {
+    fetch('/api/projects/' + id + '/query', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sql: 'SELECT * FROM "' + activeTable + '" LIMIT 50' }),
@@ -24,7 +25,7 @@ export default function DatabasePage({ params }: { params: { id: string } }) {
       })
       .catch(() => { setColumns([]); setRows([]); })
       .finally(() => setLoading(false));
-  }, [activeTable, params.id]);
+  }, [activeTable, id]);
 
   return (
     <div className="space-y-4">

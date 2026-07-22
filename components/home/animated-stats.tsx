@@ -55,19 +55,7 @@ function AnimatedBar({ val, month, delay }: { val: number; month: string; delay:
 }
 
 export function AnimatedStats() {
-  const [visible, setVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.2 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <section className="px-6 py-24 bg-white" ref={sectionRef}>
