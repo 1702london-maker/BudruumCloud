@@ -1,3 +1,8 @@
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "@/lib/auth-client";
+
 const BudruumLogo = () => (
   <svg viewBox="0 0 100 100" width="36" height="36">
     <ellipse cx="50" cy="40" rx="38" ry="30" fill="#C5DCF0" />
@@ -9,6 +14,25 @@ const BudruumLogo = () => (
 );
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    const res = await signIn.email({ email, password });
+    setLoading(false);
+    if (res.error) {
+      setError(res.error.message || "Invalid email or password.");
+    } else {
+      router.push("/dashboard");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white flex">
       {/* Left panel */}
@@ -61,14 +85,20 @@ export default function LoginPage() {
           <h1 className="text-[24px] font-extrabold tracking-[-0.025em] text-[#0d0d1a] mb-1">Sign in</h1>
           <p className="text-[13px] text-[#9494a8] mb-7">Welcome back. Enter your credentials to continue.</p>
 
-          <form className="space-y-4">
+          {error && (
+            <div className="mb-4 px-3 py-2.5 rounded-[8px] bg-red-50 border border-red-100 text-[12.5px] text-red-600">{error}</div>
+          )}
+
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <label className="block text-[12px] font-semibold text-[#0d0d1a] mb-1.5">Email address</label>
-              <input type="email" placeholder="you@agency.co" className="w-full border border-[#e8e8f0] rounded-[8px] px-3 py-2.5 text-[13px] placeholder-[#c0c0d0] focus:outline-none focus:border-[#8BB8D8] transition-colors" />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@agency.co" required
+                className="w-full border border-[#e8e8f0] rounded-[8px] px-3 py-2.5 text-[13px] placeholder-[#c0c0d0] focus:outline-none focus:border-[#8BB8D8] transition-colors" />
             </div>
             <div>
               <label className="block text-[12px] font-semibold text-[#0d0d1a] mb-1.5">Password</label>
-              <input type="password" placeholder="••••••••••" className="w-full border border-[#e8e8f0] rounded-[8px] px-3 py-2.5 text-[13px] placeholder-[#c0c0d0] focus:outline-none focus:border-[#8BB8D8] transition-colors" />
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••••" required
+                className="w-full border border-[#e8e8f0] rounded-[8px] px-3 py-2.5 text-[13px] placeholder-[#c0c0d0] focus:outline-none focus:border-[#8BB8D8] transition-colors" />
             </div>
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -77,25 +107,11 @@ export default function LoginPage() {
               </label>
               <a href="#" className="text-[12px] text-[#5890B8] hover:text-[#8BB8D8] transition-colors font-medium">Forgot password?</a>
             </div>
-            <button type="submit" className="btn-primary w-full bg-[#8BB8D8] text-white text-[13px] font-semibold py-2.5 rounded-[8px] mt-2">Sign in</button>
+            <button type="submit" disabled={loading}
+              className="w-full bg-[#8BB8D8] text-white text-[13px] font-semibold py-2.5 rounded-[8px] mt-2 hover:bg-[#6aa0c4] transition-colors disabled:opacity-60">
+              {loading ? "Signing in…" : "Sign in"}
+            </button>
           </form>
-
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-[#e8e8f0]" />
-            <span className="text-[11px] text-[#9494a8] font-medium">or continue with</span>
-            <div className="flex-1 h-px bg-[#e8e8f0]" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: "GitHub", icon: "⚡" },
-              { label: "Google", icon: "G" },
-            ].map(({ label, icon }) => (
-              <button key={label} className="flex items-center justify-center gap-2 border border-[#e8e8f0] rounded-[8px] py-2.5 text-[13px] font-medium text-[#0d0d1a] hover:border-[#C5DCF0] hover:bg-[#EEF5FB] transition-colors">
-                <span className="text-[14px]">{icon}</span> {label}
-              </button>
-            ))}
-          </div>
 
           <p className="text-center text-[12.5px] text-[#9494a8] mt-7">
             Don't have an account?{" "}
