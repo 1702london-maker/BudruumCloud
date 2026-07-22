@@ -84,3 +84,13 @@ export const projectLog = pgTable("project_log", {
   message: text("message"),
   createdAt: timestamp("created_at").notNull(),
 });
+
+export const projectFunction = pgTable("project_function", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull().references(() => project.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  status: text("status").notNull().default("active"),
+  responseBody: text("response_body").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});

@@ -75,6 +75,15 @@ export const initialSchemaSql = [
     "message" text,
     "created_at" timestamp NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS "project_function" (
+    "id" text PRIMARY KEY NOT NULL,
+    "project_id" text NOT NULL REFERENCES "project"("id") ON DELETE cascade,
+    "name" text NOT NULL,
+    "status" text DEFAULT 'active' NOT NULL,
+    "response_body" text NOT NULL,
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp NOT NULL
+  )`,
   `ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "name" text`,
   `ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "email" text`,
   `ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "email_verified" boolean DEFAULT false NOT NULL`,
