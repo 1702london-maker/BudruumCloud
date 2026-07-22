@@ -92,7 +92,7 @@ export default function ProjectLayout({ children, params }: { children: React.Re
               <span className="font-semibold truncate">{projectName}</span>
               <Menu size={14} className="text-[#9494a8]" />
             </button>
-            <p className="mt-2 text-[11px] text-[#9494a8]">Neon Postgres | {projectRegion}</p>
+            <p className="mt-2 text-[11px] text-[#9494a8]">Budruum backend | {projectRegion}</p>
           </div>
           <nav className="p-2">
             {NAV.map(({ label, path, icon: Icon }) => {
@@ -111,7 +111,7 @@ export default function ProjectLayout({ children, params }: { children: React.Re
               <Bot size={14} className="text-[#5890B8]" />
               <span className="text-[12px] font-bold">Budruum Advisor</span>
             </div>
-            <p className="text-[11.5px] leading-relaxed text-[#6b6b80]">No critical issues found. Provider credentials decide which services can run.</p>
+            <p className="text-[11.5px] leading-relaxed text-[#6b6b80]">No critical issues found. Service readiness controls which features can run.</p>
           </div>
         </aside>
 

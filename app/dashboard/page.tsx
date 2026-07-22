@@ -154,7 +154,7 @@ export default function DashboardPage() {
                         <div className="flex items-start justify-between mb-3">
                           <div>
                             <h2 className="text-[14px] font-bold group-hover:text-[#5890B8]">{project.name}</h2>
-                            <p className="text-[12px] text-[#6b6b80] mt-1">Neon | {project.region}</p>
+                            <p className="text-[12px] text-[#6b6b80] mt-1">Budruum backend | {project.region}</p>
                           </div>
                           <MoreVertical size={15} className="text-[#9494a8]" />
                         </div>

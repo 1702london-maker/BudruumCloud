@@ -14,7 +14,7 @@ export default function FunctionsPage() {
       <Topbar title="Edge Functions" subtitle="Serverless functions deployed at the edge" />
       <div className="flex-1 overflow-auto px-6 py-6">
         <div className="flex items-center justify-between mb-6">
-          <p className="text-[13px] text-[#9494a8]">Deploy TypeScript functions that run on Cloudflare Workers globally.</p>
+          <p className="text-[13px] text-[#9494a8]">Deploy TypeScript functions that run on Budruum's global runtime.</p>
           <button className="flex items-center gap-1.5 bg-[#4231d0] text-white text-[12px] font-semibold px-3 py-1.5 rounded-[6px] hover:bg-[#3520b8] transition-colors">
             <Plus size={13} /> New function
           </button>

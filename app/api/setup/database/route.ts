@@ -4,6 +4,11 @@ import { initialSchemaSql } from "@/lib/migrations";
 
 export async function POST(req: NextRequest) {
   const confirm = req.nextUrl.searchParams.get("confirm");
+  const token = req.nextUrl.searchParams.get("token");
+  if (process.env.NODE_ENV === "production" && (!process.env.SETUP_DATABASE_TOKEN || token !== process.env.SETUP_DATABASE_TOKEN)) {
+    return NextResponse.json({ error: "Setup route is disabled." }, { status: 404 });
+  }
+
   if (confirm !== "create-budruum-schema") {
     return NextResponse.json({ error: "Missing setup confirmation." }, { status: 403 });
   }

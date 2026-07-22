@@ -56,8 +56,8 @@ export default function ProjectOverviewPage({ params }: { params: Promise<{ id: 
   }, [id]);
 
   const endpoint = project ? `${origin}/api/v1/projects/${project.id}` : "";
-
   const anonKey = keys.find((key) => key.type === "anon");
+  const maskedAnonKey = anonKey ? `${anonKey.key.slice(0, 12)}...${anonKey.key.slice(-4)}` : "BUDRUUM_ANON_KEY";
 
   function copyEndpoint() {
     navigator.clipboard.writeText(endpoint);
@@ -86,11 +86,11 @@ export default function ProjectOverviewPage({ params }: { params: Promise<{ id: 
           </div>
 
           <div className="grid grid-cols-2 gap-x-10 gap-y-8">
-            <MetricCard icon={CheckCircle2} label="Status" value="Healthy" detail="Core API is responding locally" />
+            <MetricCard icon={CheckCircle2} label="Status" value="Healthy" detail="Budruum services are responding" />
             <MetricCard icon={Box} label="Compute" value="Starter" detail={project.plan} />
             <MetricCard icon={GitBranch} label="GitHub" value="No repository connected" detail="Connect in Integrations" />
             <MetricCard icon={GitBranch} label="Recent branch" value="No branches" detail="Preview databases are next" />
-            <MetricCard icon={Database} label="Last migration" value="0000_initial" detail="Drizzle schema available" />
+            <MetricCard icon={Database} label="Last migration" value="0000_initial" detail="Latest project schema" />
             <MetricCard icon={Archive} label="Last backup" value="No backups" detail="Scheduled backups not wired yet" />
           </div>
         </div>
@@ -104,7 +104,7 @@ export default function ProjectOverviewPage({ params }: { params: Promise<{ id: 
               <div className="flex-1">
                 <p className="text-[13px] font-bold">Primary Database</p>
                 <p className="text-[12px] text-[#6b6b80] mt-1">{project.region}</p>
-                <p className="text-[12px] text-[#6b6b80]">Neon Postgres</p>
+                <p className="text-[12px] text-[#6b6b80]">Budruum Database</p>
               </div>
               <span className="text-[22px]">GB</span>
             </div>
@@ -127,12 +127,12 @@ export default function ProjectOverviewPage({ params }: { params: Promise<{ id: 
 
       <section className="grid grid-cols-4 gap-4">
         {[
-          { label: "Postgres", icon: Database, warnings: 0, errors: checks.find((check) => check.name === "Neon Postgres")?.status === "missing" ? 1 : 0 },
+          { label: "Database", icon: Database, warnings: 0, errors: checks.find((check) => check.name === "Database")?.status === "missing" ? 1 : 0 },
           { label: "Edge Functions", icon: Zap, warnings: 1, errors: 0 },
-          { label: "Auth", icon: Shield, warnings: checks.find((check) => check.name === "Better Auth")?.status === "dev-default" ? 1 : 0, errors: 0 },
-          { label: "Storage", icon: HardDrive, warnings: 0, errors: checks.find((check) => check.name === "Cloudflare R2")?.status === "missing" ? 1 : 0 },
+          { label: "Auth", icon: Shield, warnings: checks.find((check) => check.name === "Authentication")?.status === "dev-default" ? 1 : 0, errors: 0 },
+          { label: "Storage", icon: HardDrive, warnings: 0, errors: checks.find((check) => check.name === "Storage")?.status === "missing" ? 1 : 0 },
         ].map(({ label, icon: Icon, warnings, errors }) => (
-          <Link key={label} href={label === "Storage" ? `/project/${id}/storage` : label === "Auth" ? `/project/${id}/auth` : label === "Postgres" ? `/project/${id}/database` : `/project/${id}/functions`} className="border border-[#e8e8f0] rounded-[8px] p-4 hover:border-[#8BB8D8] transition-colors">
+          <Link key={label} href={label === "Storage" ? `/project/${id}/storage` : label === "Auth" ? `/project/${id}/auth` : label === "Database" ? `/project/${id}/database` : `/project/${id}/functions`} className="border border-[#e8e8f0] rounded-[8px] p-4 hover:border-[#8BB8D8] transition-colors">
             <div className="flex items-center justify-between mb-4">
               <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9494a8]">{label}</p>
               <Icon size={15} className="text-[#9494a8]" />
@@ -156,12 +156,12 @@ export default function ProjectOverviewPage({ params }: { params: Promise<{ id: 
           </div>
           <div className="h-28 flex flex-col items-center justify-center text-center">
             <Shield size={22} className="text-[#9494a8] mb-2" />
-            <p className="text-[13px] text-[#6b6b80]">No security or performance issues found in local checks.</p>
+            <p className="text-[13px] text-[#6b6b80]">No security or performance issues found in Budruum checks.</p>
           </div>
         </div>
 
         <div className="border border-[#e8e8f0] rounded-[8px] p-5">
-          <h2 className="text-[14px] font-bold mb-4">Provider wiring</h2>
+          <h2 className="text-[14px] font-bold mb-4">Service readiness</h2>
           <div className="space-y-3">
             {checks.map((check) => (
               <div key={check.name} className="flex items-start justify-between gap-3">
@@ -192,9 +192,12 @@ export default function ProjectOverviewPage({ params }: { params: Promise<{ id: 
         </div>
         <pre className="mt-4 overflow-auto rounded-[8px] border border-[#e8e8f0] bg-[#fbfbfd] p-4 text-[12px] leading-relaxed">{`import { createClient } from "@budruum/client";
 
-const budruum = createClient("${origin}", "${anonKey?.key || "BUDRUUM_ANON_KEY"}", {
-  projectId: "${project.id}"
+const budruum = createClient("${origin}", process.env.NEXT_PUBLIC_BUDRUUM_ANON_KEY, {
+  projectId: process.env.NEXT_PUBLIC_BUDRUUM_PROJECT_ID
 });
+
+// Current project: ${project.id}
+// Anon key: ${maskedAnonKey}
 
 const { data, error } = await budruum
   .from("products")

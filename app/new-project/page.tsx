@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const REGIONS = [
-  { id: "eu-west-2", label: "Europe West (London)", flag: "🇬🇧" },
-  { id: "us-east-1", label: "US East (Virginia)", flag: "🇺🇸" },
-  { id: "ap-southeast-1", label: "Asia Pacific (Singapore)", flag: "🇸🇬" },
+  { id: "eu-west-2", label: "Europe West (London)", code: "GB" },
+  { id: "us-east-1", label: "US East (Virginia)", code: "US" },
+  { id: "ap-southeast-1", label: "Asia Pacific (Singapore)", code: "SG" },
 ];
+
+const SERVICES = ["Managed database", "File storage", "Authentication", "API keys", "Realtime channels"];
 
 export default function NewProjectPage() {
   const { data: session } = useSession();
@@ -49,7 +51,7 @@ export default function NewProjectPage() {
 
       <main className="max-w-xl mx-auto px-6 py-14">
         <h1 className="text-[24px] font-extrabold tracking-[-0.025em] text-[#0d0d1a] mb-1">Create a project</h1>
-        <p className="text-[13px] text-[#9494a8] mb-8">A project gives you an isolated Postgres database, storage bucket, and API keys.</p>
+        <p className="text-[13px] text-[#9494a8] mb-8">A project gives you a private Budruum backend with database, storage, auth, realtime, and API keys.</p>
 
         {error && (
           <div className="mb-5 px-3 py-2.5 rounded-[8px] bg-red-50 border border-red-100 text-[12.5px] text-red-600">{error}</div>
@@ -64,12 +66,12 @@ export default function NewProjectPage() {
           </div>
 
           <div>
-            <label className="block text-[12px] font-semibold text-[#0d0d1a] mb-2">Database region</label>
+            <label className="block text-[12px] font-semibold text-[#0d0d1a] mb-2">Primary region</label>
             <div className="space-y-2">
               {REGIONS.map(r => (
                 <label key={r.id} className={`flex items-center gap-3 p-3 rounded-[10px] border cursor-pointer transition-all ${region === r.id ? "border-[#8BB8D8] bg-[#EEF5FB]" : "border-[#e8e8f0] bg-white hover:border-[#C5DCF0]"}`}>
                   <input type="radio" name="region" value={r.id} checked={region === r.id} onChange={() => setRegion(r.id)} className="sr-only" />
-                  <span className="text-[18px]">{r.flag}</span>
+                  <span className="w-8 text-[12px] font-bold text-[#5890B8]">{r.code}</span>
                   <div>
                     <p className="text-[12.5px] font-semibold text-[#0d0d1a]">{r.label}</p>
                     <p className="text-[11px] text-[#9494a8]">{r.id}</p>
@@ -85,9 +87,9 @@ export default function NewProjectPage() {
           </div>
 
           <div className="bg-[#EEF5FB] border border-[#C5DCF0] rounded-[10px] p-4">
-            <p className="text-[11.5px] font-semibold text-[#5890B8] mb-1.5">What gets provisioned</p>
+            <p className="text-[11.5px] font-semibold text-[#5890B8] mb-1.5">Budruum services included</p>
             <div className="space-y-1">
-              {["Postgres database (Neon)", "File storage bucket (Cloudflare R2)", "Anon + service API keys", "Realtime channel (Ably)"].map(item => (
+              {SERVICES.map(item => (
                 <div key={item} className="flex items-center gap-2">
                   <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#C5DCF0"/><path d="M3 5l1.5 1.5L7 3.5" stroke="#5890B8" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
                   <span className="text-[11.5px] text-[#5890B8]">{item}</span>
@@ -98,7 +100,7 @@ export default function NewProjectPage() {
 
           <button type="submit" disabled={loading || !name.trim()}
             className="w-full bg-[#8BB8D8] text-white text-[13px] font-semibold py-3 rounded-[8px] hover:bg-[#6aa0c4] transition-colors disabled:opacity-60">
-            {loading ? "Creating project…" : "Create project"}
+            {loading ? "Creating project..." : "Create project"}
           </button>
         </form>
       </main>

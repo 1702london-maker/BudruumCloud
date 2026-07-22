@@ -66,7 +66,7 @@ export default function StoragePage({ params }: { params: Promise<{ id: string }
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[18px] font-extrabold tracking-[-0.02em] text-[#0d0d1a]">Storage</h1>
-          <p className="text-[12.5px] text-[#9494a8] mt-0.5">Cloudflare R2 object storage for your project.</p>
+          <p className="text-[12.5px] text-[#9494a8] mt-0.5">Budruum Storage for your project files.</p>
         </div>
         <div className="flex items-center gap-2">
           <input ref={fileRef} type="file" onChange={handleUpload} className="hidden" id="file-upload" />
@@ -100,7 +100,7 @@ export default function StoragePage({ params }: { params: Promise<{ id: string }
           </div>
         ) : files.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <div className="w-12 h-12 rounded-full bg-[#EEF5FB] border border-[#C5DCF0] flex items-center justify-center text-[11px] font-bold text-[#5890B8]">R2</div>
+            <div className="w-12 h-12 rounded-full bg-[#EEF5FB] border border-[#C5DCF0] flex items-center justify-center text-[11px] font-bold text-[#5890B8]">ST</div>
             <p className="text-[13px] font-semibold text-[#0d0d1a]">No files yet</p>
             <p className="text-[12px] text-[#9494a8]">Upload your first file to get started.</p>
           </div>

@@ -31,7 +31,7 @@ export default function DatabasePage({ params }: { params: Promise<{ id: string 
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-[18px] font-extrabold tracking-[-0.02em] text-[#0d0d1a]">Table Editor</h1>
-        <span className="text-[11.5px] text-[#9494a8]">Postgres - Neon - eu-west-2</span>
+        <span className="text-[11.5px] text-[#9494a8]">Budruum Database - Primary region</span>
       </div>
       <div className="flex gap-4" style={{ height: "calc(100vh - 220px)", minHeight: "400px" }}>
         <div className="w-44 flex-shrink-0 bg-white border border-[#e8e8f0] rounded-[12px] p-2 overflow-y-auto">

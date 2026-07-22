@@ -10,35 +10,40 @@ function hasAnyEnv(names: string[]) {
 
 export async function GET() {
   const checks = [
-    { name: "Next.js API", status: "ok", detail: "Local API route is responding." },
+    { name: "API", status: "ok", detail: "Budruum API is responding." },
     {
-      name: "Neon Postgres",
+      name: "Database",
       status: hasEnv("DATABASE_URL") ? "configured" : "missing",
-      detail: hasEnv("DATABASE_URL") ? "DATABASE_URL is set." : "Add DATABASE_URL to .env.local.",
+      detail: hasEnv("DATABASE_URL") ? "Ready for project data." : "Database connection is not configured.",
     },
     {
-      name: "Better Auth",
+      name: "Authentication",
       status: hasEnv("BETTER_AUTH_SECRET") ? "configured" : "dev-default",
       detail: hasEnv("BETTER_AUTH_SECRET")
-        ? "BETTER_AUTH_SECRET is set."
-        : "Using local development fallback. Set BETTER_AUTH_SECRET before production.",
+        ? "Ready for user accounts."
+        : "Using a development fallback. Configure production authentication before launch.",
     },
     {
-      name: "Cloudflare R2",
+      name: "Storage",
       status:
         hasEnv("CLOUDFLARE_R2_BUCKET") &&
         hasEnv("CLOUDFLARE_R2_ACCESS_KEY_ID") &&
         hasEnv("CLOUDFLARE_R2_SECRET_ACCESS_KEY")
           ? "configured"
           : "missing",
-      detail: "Requires R2 bucket, access key ID, and secret access key.",
+      detail:
+        hasEnv("CLOUDFLARE_R2_BUCKET") &&
+        hasEnv("CLOUDFLARE_R2_ACCESS_KEY_ID") &&
+        hasEnv("CLOUDFLARE_R2_SECRET_ACCESS_KEY")
+          ? "Ready for project files."
+          : "Storage is not configured yet.",
     },
     {
-      name: "Ably Realtime",
+      name: "Realtime",
       status: hasAnyEnv(["ABLY_API_KEY", "ABLY_KEY", "ABLY_APP_KEY"]) ? "configured" : "missing",
       detail: hasAnyEnv(["ABLY_API_KEY", "ABLY_KEY", "ABLY_APP_KEY"])
-        ? "Ably server key is set."
-        : "Realtime is not wired until ABLY_API_KEY is set.",
+        ? "Ready for live project channels."
+        : "Realtime channels are not configured yet.",
     },
   ];
 

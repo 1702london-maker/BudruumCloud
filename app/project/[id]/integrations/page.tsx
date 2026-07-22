@@ -8,8 +8,8 @@ type HealthCheck = { name: string; status: string; detail: string };
 const INTEGRATIONS = [
   { name: "GitHub", icon: GitBranch, env: "GITHUB_CLIENT_ID", description: "Connect repositories, branches, and migration webhooks." },
   { name: "Vercel", icon: Cloud, env: "VERCEL_ACCESS_TOKEN", description: "Inject BUDRUUM_URL, project ID, and API keys into deployments." },
-  { name: "Cloudflare R2", icon: KeyRound, env: "Cloudflare R2", description: "Store files with S3-compatible zero-egress object storage." },
-  { name: "Ably", icon: RadioTower, env: "Ably Realtime", description: "Power realtime subscriptions and project broadcast channels." },
+  { name: "Storage Provider", icon: KeyRound, env: "Storage", description: "Store and serve project files through Budruum Storage." },
+  { name: "Realtime Provider", icon: RadioTower, env: "Realtime", description: "Power realtime subscriptions and project broadcast channels." },
 ];
 
 export default function IntegrationsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,8 +23,8 @@ export default function IntegrationsPage({ params }: { params: Promise<{ id: str
   }, []);
 
   function statusFor(env: string) {
-    if (env === "Cloudflare R2") return checks.find((check) => check.name === "Cloudflare R2")?.status || "missing";
-    if (env === "Ably Realtime") return checks.find((check) => check.name === "Ably Realtime")?.status || "missing";
+    if (env === "Storage") return checks.find((check) => check.name === "Storage")?.status || "missing";
+    if (env === "Realtime") return checks.find((check) => check.name === "Realtime")?.status || "missing";
     return "planned";
   }
 

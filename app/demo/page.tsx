@@ -52,7 +52,7 @@ export default function DemoConsolePage() {
             <div className="w-full h-9 rounded-[7px] border border-[#e8e8f0] bg-[#fbfbfd] px-3 flex items-center text-[12px] font-semibold">
               demo-client-backend
             </div>
-            <p className="mt-2 text-[11px] text-[#9494a8]">Neon Postgres | eu-west-2</p>
+            <p className="mt-2 text-[11px] text-[#9494a8]">Budruum backend | eu-west-2</p>
           </div>
           <nav className="p-2">
             {nav.map(({ label, icon: Icon }, index) => (
@@ -89,7 +89,7 @@ export default function DemoConsolePage() {
                   <div className="flex-1">
                     <p className="text-[13px] font-bold">Primary Database</p>
                     <p className="text-[12px] text-[#6b6b80] mt-1">West Europe (London)</p>
-                    <p className="text-[12px] text-[#6b6b80]">Neon Postgres</p>
+                    <p className="text-[12px] text-[#6b6b80]">Budruum Database</p>
                   </div>
                   <span className="text-[22px]">GB</span>
                 </div>
@@ -103,7 +103,7 @@ export default function DemoConsolePage() {
           </section>
 
           <section className="grid grid-cols-4 gap-4 mt-8">
-            {["Postgres", "Edge Functions", "Auth", "Storage"].map((label) => (
+            {["Database", "Edge Functions", "Auth", "Storage"].map((label) => (
               <div key={label} className="border border-[#e8e8f0] rounded-[8px] p-4">
                 <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#9494a8] mb-3">{label}</p>
                 <p className="text-[18px] text-[#6b6b80]">0 warnings</p>
@@ -116,7 +116,7 @@ export default function DemoConsolePage() {
 
           <section className="border border-[#e8e8f0] rounded-[8px] p-5 mt-8">
             <h2 className="text-[15px] font-bold mb-2">What this demo shows</h2>
-            <p className="text-[13px] text-[#6b6b80]">This is the Budruum backend console UI without requiring login. The real console is at /dashboard after DATABASE_URL and auth env vars are configured.</p>
+            <p className="text-[13px] text-[#6b6b80]">This is the Budruum backend console UI without requiring login. The real console is at /dashboard after your production services are configured.</p>
           </section>
         </main>
       </div>

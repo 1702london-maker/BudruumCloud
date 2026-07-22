@@ -12,7 +12,7 @@ export default function RealtimePage({ params }: { params: Promise<{ id: string 
   useEffect(() => {
     fetch("/api/health")
       .then((response) => response.json())
-      .then((data) => setAbly((data.checks || []).find((check: HealthCheck) => check.name === "Ably Realtime") || null));
+      .then((data) => setAbly((data.checks || []).find((check: HealthCheck) => check.name === "Realtime") || null));
   }, []);
 
   const configured = ably?.status === "configured";
@@ -25,13 +25,13 @@ export default function RealtimePage({ params }: { params: Promise<{ id: string 
           <p className="text-[13px] text-[#6b6b80] mt-1">Live database changes, presence, and broadcast channels for this project.</p>
         </div>
         <span className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase ${configured ? "bg-green-50 text-green-700 border-green-100" : "bg-red-50 text-red-700 border-red-100"}`}>
-          {configured ? "configured" : "needs ABLY_API_KEY"}
+          {configured ? "configured" : "needs setup"}
         </span>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
         {[
-          { icon: Activity, label: "Database changes", value: "0 subscriptions", detail: "Postgres change feeds will publish here." },
+          { icon: Activity, label: "Database changes", value: "0 subscriptions", detail: "Database change feeds will publish here." },
           { icon: Wifi, label: "Presence", value: "0 members online", detail: "Track active users per client app." },
           { icon: Radio, label: "Broadcast", value: "0 messages", detail: "Send project-scoped realtime events." },
         ].map(({ icon: Icon, label, value, detail }) => (
